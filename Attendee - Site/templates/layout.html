@@ -13,6 +13,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css"
+    integrity="sha512-SzlrxWUlpfuzQ+pcUCosxcglQRNAq/DZjVsC0lE40xsADsfeQoEypE+enwcOiGjk/bSuGGKHEyjSoQ1zVisanQ=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
     <title>Attendee - Login</title>
     <style>
         * {
@@ -33,6 +36,7 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
                 <div class="navbar-nav">
+                    <a class="nav-link active" href="/">Home</a>
                     <a class="nav-link active" href="/about">About us</a>
                     <a class="nav-link active" href="/contact">Contact us</a>
                 </div>
@@ -41,5 +45,5 @@
     </nav>
     {% block body %}{% endblock %}
 </body>
-
+    <script src="{{url_for('static',filename='js/script.js')}}"></script>
 </html>
