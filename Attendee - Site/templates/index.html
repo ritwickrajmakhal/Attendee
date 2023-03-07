@@ -1,27 +1,38 @@
 {% extends "layout.html" %}
 {% block body %}
-    <main class="d-flex justify-content-center align-items-center">
-        <div class="border border-black p-3 my-3">
-            <div class="input-group mb-3">
-                <select class="form-select" aria-label="Default select example">
-                    <option selected>Select User Type</option>
-                    <option value="1">Student Login</option>
-                    <option value="2">Facility Login</option>
-                </select>
-            </div>
-            <div class="input-group mb-3">
-                <span class="input-group-text" id="inputGroup-sizing-default">User Id</span>
-                <input type="text" class="form-control" aria-label="Sizing example input"
-                    aria-describedby="inputGroup-sizing-default">
-            </div>
-            <div class="input-group mb-3">
-                <span class="input-group-text" id="inputGroup-sizing-default">Password</span>
-                <input type="password" class="form-control" aria-label="Sizing example input"
-                    aria-describedby="inputGroup-sizing-default">
-            </div>
-            <div class="d-grid gap-2">
-                <button class="btn btn-outline-success" type="button">Login</button>
+<section class="vh-100" style="background-color: #508bfc;">
+    <div class="container py-5 h-100">
+        <div class="row d-flex justify-content-center align-items-center h-100">
+            <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+                <div class="card shadow-2-strong" style="border-radius: 1rem;">
+                    <div class="card-body p-5 text-center">
+                        <form action="/" method="post">
+                            <h3 class="mb-5">Sign in</h3>
+                            <div class="input-group mb-3">
+                                <select class="form-select" aria-label="Default select example" required>
+                                    <option selected>Select User Type</option>
+                                    <option value="1">Student Login</option>
+                                    <option value="2">Facility Login</option>
+                                </select>
+                            </div>
+                            <div class="form-floating mb-3">
+                                <input type="email" class="form-control" id="floatingInput" name="email"
+                                    placeholder="name@example.com" required>
+                                <label for="floatingInput">Login id</label>
+                            </div>
+                            <div class="form-floating mb-3">
+                                <input type="email" class="form-control" id="floatingInput" name="email"
+                                    placeholder="name@example.com" required>
+                                <label for="floatingInput">Password</label>
+                            </div>
+                            <button class="btn btn-primary btn-lg btn-block" type="submit">Login</button>
+
+                            <hr class="my-4">
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
-    </main>
-    {% endblock %}
+    </div>
+</section>
+{% endblock %}

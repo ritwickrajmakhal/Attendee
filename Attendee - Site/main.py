@@ -1,28 +1,43 @@
 from flask import Flask, render_template, request
 import mysql.connector
-import re
-try:
-    mydb = mysql.connector.connect(
-        host='localhost',
-        user='root',
-        password='',
-        database='attendee'
-    )
-    mycursor = mydb.cursor()
-    print("Database connection established")
-except mysql.connector.errors.DatabaseError:
-    print("Turn on the mysql server")
-    exit(-1)
+import json
 
+def connectWithServer(host,user,password,database):
+    try:
+        mydb = mysql.connector.connect(host=host, user=user, password=password, database=database)
+        print("Database connection established")
+    except mysql.connector.errors.DatabaseError:
+        print("Turn on the mysql server")
+        exit(-1)
+    return mydb
+with open('config.json','r') as f:
+    params = json.loads(f.read())['params']
 
+if params['isLocalServer']:
+    localServer = params['localServer']
+    mydb = connectWithServer(host=localServer['host'],
+                      user=localServer['user'],
+                      password=localServer['password'],
+                      database=localServer['database'])
+else:
+    productionServer = params['productionServer']
+    mydb = connectWithServer(host=productionServer['host'],
+                      user=productionServer['user'],
+                      password=productionServer['password'],
+                      database=productionServer['database'])    
+
+mycursor = mydb.cursor()
 app = Flask(__name__)
-@app.route('/')
-@app.route('/home')
+@app.route('/',methods=['GET','POST'])
 def home():
-    return render_template('index.html')
+    return render_template('index.html',params=params)
+
+
 @app.route('/about')
 def about():
-    return render_template('about.html')
+    return render_template('about.html',params=params)
+
+
 @app.route('/contact',methods=['GET','POST'])
 def contact():
     if request.method == "POST":
@@ -33,5 +48,10 @@ def contact():
         val = (fullName,email,msg)
         mycursor.execute(sql,val)
         mydb.commit()
-    return render_template('contact.html')
-app.run(debug=True)
+        return render_template('thanks-card.html',params=params)
+    else:
+        return render_template('contact.html',params=params)
+    
+    
+if __name__ == '__main__':
+    app.run(debug=True)

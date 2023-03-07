@@ -44,6 +44,30 @@
         </div>
     </nav>
     {% block body %}{% endblock %}
+
+        <footer class="text-center text-lg-start bg-dark">
+          <div class="container d-flex justify-content-center py-5">
+            <a href="{{params['fb_url']}}" target="_blank" class="btn btn-primary btn-lg btn-floating mx-2" style="background-color: #54456b;">
+              <i class="fab fa-facebook-f"></i>
+            </a>
+            <a href="{{params['yt_url']}}" target="_blank" class="btn btn-primary btn-lg btn-floating mx-2" style="background-color: #54456b;">
+              <i class="fab fa-youtube"></i>
+            </a>
+            <a href="{{params['insta_url']}}" target="_blank" class="btn btn-primary btn-lg btn-floating mx-2" style="background-color: #54456b;">
+              <i class="fab fa-instagram"></i>
+            </a>
+            <a href="{{params['tw_url']}}" target="_blank" class="btn btn-primary btn-lg btn-floating mx-2" style="background-color: #54456b;">
+              <i class="fab fa-twitter"></i>
+            </a>
+          </div>
+      
+          <!-- Copyright -->
+          <div class="text-center text-white p-3" style="background-color: rgba(0, 0, 0, 0.2);">
+            © 2023 Copyright:
+            <a class="text-white" href="/">attendee.com</a>
+          </div>
+          <!-- Copyright -->
+        </footer>
+        
 </body>
-    <script src="{{url_for('static',filename='js/script.js')}}"></script>
 </html>
