@@ -9,24 +9,23 @@
                         <form action="/" method="post">
                             <h3 class="mb-5">Sign in</h3>
                             <div class="input-group mb-3">
-                                <select class="form-select" aria-label="Default select example" required>
+                                <select class="form-select" name='loginType' aria-label="Default select example" required>
                                     <option selected>Select User Type</option>
                                     <option value="1">Student Login</option>
                                     <option value="2">Facility Login</option>
                                 </select>
                             </div>
                             <div class="form-floating mb-3">
-                                <input type="email" class="form-control" id="floatingInput" name="email"
+                                <input type="text" class="form-control" id="floatingInput" name="loginId"
                                     placeholder="name@example.com" required>
                                 <label for="floatingInput">Login id</label>
                             </div>
                             <div class="form-floating mb-3">
-                                <input type="email" class="form-control" id="floatingInput" name="email"
+                                <input type="Password" class="form-control" id="floatingInput" name="password"
                                     placeholder="name@example.com" required>
                                 <label for="floatingInput">Password</label>
                             </div>
                             <button class="btn btn-primary btn-lg btn-block" type="submit">Login</button>
-
                             <hr class="my-4">
                         </form>
                     </div>

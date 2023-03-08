@@ -1,34 +1,36 @@
 {% extends "layout.html" %}
 {% block body %}
-    <main class="container p-3" style="background-color: rgb(241, 239, 239);">
-    <div class="d-flex justify-content-between align-items-center flex-wrap">
-      <img src="{{url_for('static',filename='iamges/profile_pic_logo.jpg')}}" class="img-fluid rounded-circle" style="width:10rem;" alt="">
-      <div class="d-flex flex-column">
-        <p>Student Name: Ritwick Raj Makhal</p>
-        <p>Student id: 5869423</p>
-        <p>Date: 02.02.2023</p>
-      </div>
+<main class="vh-100 container p-3" style="background-color: rgb(241, 239, 239);">
+  <div class="d-flex justify-content-between align-items-center flex-wrap">
+    <img src="{{url_for('static',filename='images/profile_pic_logo.jpg')}}" class="img-fluid rounded-circle"
+      style="width:10rem;" alt="">
+    <div class="d-flex flex-column">
+      <p>Student Name: {{name}}</p>
+      <p>Student id: {{loginId}}</p>
+      <p>Date: {{currentDate}}</p>
     </div>
-    <table class="table table-hover my-5">
-      <thead>
-        <tr>
-          <th>Class name</th>
-          <th>Attendance status</th>
-        </tr>
-      </thead>
-      <tbody class="table-group-divider">
-        <tr>
-          <td>Biology</td>
-          <td><i class="fa-solid fa-check"></i></td>
-        </tr>
-        <tr>
-          <td>Design analysis of algorithm</td>
-          <td><i class="fa-solid fa-xmark"></i></td>
-        </tr>
-      </tbody>
-    </table>
-    <button name="" id="" class="btn btn-primary" type="button" value="">Logout</button>
-  </main>
+  </div>
+  <table class="table table-hover my-5">
+    <thead>
+      <tr>
+        <th>Class name</th>
+        <th>Attendance status</th>
+      </tr>
+    </thead>
+    <tbody class="table-group-divider">
+      <tr>
+        <td>Biology</td>
+        <td><i class="fa-solid fa-check"></i></td>
+      </tr>
+      <tr>
+        <td>Design analysis of algorithm</td>
+        <td><i class="fa-solid fa-xmark"></i></td>
+      </tr>
+    </tbody>
+  </table>
+  <a class="btn btn-primary" href="/">Logout</a>
+</main>
+{% endblock %}
 </body>
 
 </html>

@@ -26,7 +26,7 @@
 
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container-fluid">
+        <div class="container">
             <a class="navbar-brand text-light" href="/">
                 <img src="{{url_for('static',filename='images/logo.png')}}" style="height:3.5rem;" alt="">
             </a>
@@ -39,6 +39,7 @@
                     <a class="nav-link active" href="/">Home</a>
                     <a class="nav-link active" href="/about">About us</a>
                     <a class="nav-link active" href="/contact">Contact us</a>
+                    <a class="nav-link active" href="{{params['github_url']}}" target="_blank"><i class="fa-brands fa-github"></i>&nbsp&nbspContrubite</a>
                 </div>
             </div>
         </div>

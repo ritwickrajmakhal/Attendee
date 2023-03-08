@@ -7,15 +7,16 @@
             "password": "",
             "database": "attendee"
         },
-        "productionServer":{
+        "productionServer": {
             "host": "ENTER_YOUR_HOST_NAME",
             "user": "ENTER_YOUR_USERNAME",
             "password": "ENTER_YOUR_PASSWORD",
             "database": "ENTER_YOUR_DATABASE_NAME"
         },
-        "fb_url":"https://www.facebook.com/attendee",
-        "yt_url":"https://www.youtube.com/attendee",
-        "insta_url":"https://www.instagram.com/attendee",
-        "tw_url":"https://www.twiter.com/attendee"
+        "fb_url": "https://www.facebook.com/attendee",
+        "yt_url": "https://www.youtube.com/attendee",
+        "insta_url": "https://www.instagram.com/attendee",
+        "tw_url": "https://www.twiter.com/attendee",
+        "github_url": "https://github.com/ritwickrajmakhal/Automated-attendence-system"
     }
 }
