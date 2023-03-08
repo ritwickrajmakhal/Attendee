@@ -1,16 +1,8 @@
 from flask import Flask, render_template, request
-import mysql.connector
 import json
 from datetime import datetime
+import methods
 
-def connectWithServer(host,user,password,database):
-    try:
-        mydb = mysql.connector.connect(host=host, user=user, password=password, database=database)
-        print("Database connection established")
-    except mysql.connector.errors.DatabaseError:
-        print("Turn on the mysql server")
-        exit(-1)
-    return mydb
 with open('config.json','r') as f:
     params = json.loads(f.read())['params']
     
@@ -20,18 +12,7 @@ def fetchDetails(tableName:str,loginId:str,password:str):
     details = mycursor.fetchone()
     return details
     
-if params['isLocalServer']:
-    localServer = params['localServer']
-    mydb = connectWithServer(host=localServer['host'],
-                      user=localServer['user'],
-                      password=localServer['password'],
-                      database=localServer['database'])
-else:
-    productionServer = params['productionServer']
-    mydb = connectWithServer(host=productionServer['host'],
-                      user=productionServer['user'],
-                      password=productionServer['password'],
-                      database=productionServer['database'])    
+mydb = methods.connectWithServer(params=params)   
 
 mycursor = mydb.cursor()
 app = Flask(__name__)
@@ -78,4 +59,5 @@ def contact():
     else:
         return render_template('contact.html',params=params)
 if __name__ == '__main__':
+    
     app.run(debug=True)
