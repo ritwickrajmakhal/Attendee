@@ -1,3 +1,16 @@
 {% extends "layout.html" %}
 {% block body %}
+<main class="vh-100 container p-3" style="background-color: rgb(241, 239, 239);">
+    <div class="d-flex justify-content-between align-items-center flex-wrap">
+      <img src="{{url_for('static',filename='images/profile_pic_logo.jpg')}}" class="img-fluid rounded-circle"
+        style="width:10rem;" alt="">
+      <div class="d-flex flex-column">
+        <p>Faculty Name: {{details[1]}}</p>
+        <p>Faculty id: {{details[0]}}</p>
+        <p>Date: {{currentDate}}</p>
+      </div>
+    </div>
+    
+    <a class="btn btn-primary" href="/">Logout</a>
+  </main>
 {% endblock %}

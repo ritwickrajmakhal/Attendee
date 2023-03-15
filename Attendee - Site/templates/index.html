@@ -1,6 +1,10 @@
 {% extends "layout.html" %}
 {% block body %}
-<section class="vh-100" style="background-color: #508bfc;">
+<section class="vh-100">
+    <div class="alert alert-danger alert-dismissible fade show {{style}}" role="alert">
+        <i class="fa-solid fa-triangle-exclamation"></i> {{errorMsg}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
     <div class="container py-5 h-100">
         <div class="row d-flex justify-content-center align-items-center h-100">
             <div class="col-12 col-md-8 col-lg-6 col-xl-5">
@@ -25,9 +29,11 @@
                                     placeholder="name@example.com" required>
                                 <label for="floatingInput">Password</label>
                             </div>
+                            
                             <button class="btn btn-primary btn-lg btn-block" type="submit">Login</button>
                             <hr class="my-4">
                         </form>
+                        <p>Don't have account? <a class="link-primary text-decoration-none" href="/signup">Sign Up</a> here</p>
                     </div>
                 </div>
             </div>
