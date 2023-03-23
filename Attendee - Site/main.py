@@ -11,6 +11,23 @@ mycursor = mydb.cursor()
 app = Flask(__name__)
 app.secret_key = "Atten-dee"
 app.config['UPLOAD_FOLDER'] = params['upload_location']
+mycursor.execute("SHOW TABLES")
+tables = []
+for table in mycursor:
+    if f"{datetime.now().year}" in table[0]:
+        tables.append(table[0])
+def isLoggedIn(tables:list):
+    if 'loginId' in session:
+        loginId = session.get('loginId')
+        password = session.get('password')
+        for table in tables:
+            mycursor.execute(f"SELECT `password` FROM {table} WHERE loginId = %s",(loginId,))
+            result = mycursor.fetchone()
+            if result:
+                if checkPassword(password.encode("utf-8"),result[0].encode("utf-8")):
+                    return True
+    return False
+
 def fetchDetails(userType:str, tables:list, loginId:str, password:str):
     result = None
     details = None
@@ -39,14 +56,21 @@ def fetchDetails(userType:str, tables:list, loginId:str, password:str):
                         "date" : datetime.now().date()
                     }
                     return details         
+def fetchClassrooms(details):
+    mycursor.execute("SELECT * FROM `classrooms` WHERE faculty_name = %s",(details['name'],))
+    result = mycursor.fetchall()
+    if result:
+        classrooms = []
+        for i in result:
+            classrooms.append({
+                "id" : i[0],
+                "subject_name" : i[1],
+                "class" : i[2]
+            })
+        return classrooms
+    return None
 @app.route('/',methods=['GET','POST'])
 def home():
-    mycursor.execute("SHOW TABLES")
-    tables = []
-    for table in mycursor:
-        if f"{datetime.now().year}" in table[0]:
-            tables.append(table[0])
-    
     if 'loginId' in session:
         loginId = session.get('loginId')
         loginType = session.get('loginType')
@@ -62,7 +86,8 @@ def home():
         elif loginType=='2':
             details = fetchDetails(loginType,['faculty_details'],loginId,password)
             if details:
-                return render_template('faculty.html',params=params,details=details)
+                classrooms = fetchClassrooms(details)
+                return render_template('faculty.html',params=params,details=details,classrooms=classrooms)
             else:
                 return render_template('index.html',params=params,error="Please select the user Type or enter the correct user id or password")
     if request.method == 'POST':
@@ -75,7 +100,7 @@ def home():
                 session['loginType'] = loginType
                 session['loginId'] = loginId
                 session['password'] = password
-                return render_template('student.html',params=params,details=details)
+                return app.redirect("/")
             else:
                 return render_template('index.html',params=params,error="Please select the user Type or enter the correct user id or password")
         elif loginType=='2':
@@ -84,7 +109,7 @@ def home():
                 session['loginType'] = loginType
                 session['loginId'] = loginId
                 session['password'] = password
-                return render_template('faculty.html',params=params,details=details)
+                return app.redirect("/")
             else:
                 return render_template('index.html',params=params,error="Please select the user Type or enter the correct user id or password")
     return render_template('index.html',params=params)
@@ -94,7 +119,7 @@ def about():
 @app.route('/logout')
 def logout():
     session.clear()
-    return render_template('thanks-card.html',params=params,message="You've successfully logged out")
+    return app.redirect("/")
 @app.route('/signup',methods=['GET','POST'])
 def signUp():
     mycursor.execute("SHOW TABLES")
@@ -174,5 +199,38 @@ def contact():
         return render_template('thanks-card.html',params=params, message="for getting in touch!")
     else:
         return render_template('contact.html',params=params)
+@app.route('/edit/<string:sno>',methods=['GET','POST'])
+def edit(sno):
+    if isLoggedIn(['faculty_details']):
+        mycursor.execute("SELECT * FROM `classrooms` WHERE id = %s",(sno,))
+        result = mycursor.fetchone()
+        details = None
+        if result:
+            details = {'sno':result[0],'subject_name':result[1],'class':result[2]}
+        if request.method == 'POST': 
+            subject_name = request.form['subject_name']
+            _class = request.form['class']
+            faculty_name = fetchDetails(session.get('loginType'),['faculty_details'],session.get('loginId'),session.get('password'))['name']
+            if sno == '0':
+                try:
+                    mycursor.execute("INSERT INTO `classrooms` (subject_name, class, faculty_name) VALUES (%s, %s, %s)",(subject_name,_class,faculty_name))
+                    mydb.commit()
+                    return app.redirect("/")
+                except:
+                    return render_template('edit.html',params=params,audiences=tables,sno=sno,error=f"Duplicate entry {subject_name} already exists.")
+            else:
+                mycursor.execute("UPDATE `classrooms` SET `subject_name` = %s, `class` = %s WHERE `id` = %s",(subject_name,_class,sno))
+                mydb.commit()
+                return app.redirect("/")
+        print(details)
+        return render_template('edit.html',params=params,audiences=tables,formDetails=details)
+    return app.redirect("/")  
+@app.route('/deleteClass/<string:sno>',methods=['GET','POST'])
+def deleteClass(sno):
+    if isLoggedIn(['faculty_details']):
+        mycursor.execute("DELETE FROM `classrooms` WHERE id = %s",(sno,))
+        mydb.commit()
+    return app.redirect("/")
+
 if __name__ == '__main__':
     app.run(debug=True)

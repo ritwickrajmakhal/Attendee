@@ -1,16 +1,48 @@
 {% extends "layout.html" %}
 {% block body %}
-<main class="vh-100 container p-3" style="background-color: rgb(241, 239, 239);">
-    <div class="d-flex justify-content-between align-items-center flex-wrap">
-      <img src="{{url_for('static',filename='images/profile_pic_logo.jpg')}}" class="img-fluid rounded-circle"
-        style="width:10rem;" alt="">
-      <div class="d-flex flex-column">
-        <p>Faculty Name: {{details[1]}}</p>
-        <p>Faculty id: {{details[0]}}</p>
-        <p>Date: {{currentDate}}</p>
-      </div>
+<main class="container p-3" style="background-color: rgb(241, 239, 239);">
+  <div class="d-flex justify-content-between align-items-center flex-wrap">
+    <div class="d-flex flex-column">
+      <p>Faculty Name: {{details['name']}}</p>
+      <p>Faculty id: {{details['loginId']}}</p>
+      <p>Date: {{details['date']}}</p>
     </div>
-    
-    <a class="btn btn-primary" href="/">Logout</a>
-  </main>
+  </div>
+  <div>
+    <a class="btn btn-success my-2" href="/edit/0"><i class="fa-solid fa-plus"></i> Create a class</a>
+    <a class="btn btn-warning my-2" href="#"><i class="fa-solid fa-chalkboard-user"></i> Start class</a>
+  </div>
+  <hr>
+  <div>
+    {% if classrooms %}
+    <h3>Your classes:</h3>
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th>Class name</th>
+          <th>Class</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody class="table-group-divider">
+        {% for _class in classrooms %}
+        <tr>
+          <td>{{_class['subject_name']}}</td>
+          <td>{{_class['class']}}</td>
+          <td>
+            <a class="btn btn-primary btn-sm" href="/edit/{{_class['id']}}"><i class="fa-solid fa-pen-to-square"></i>
+              Edit</a>
+            <a class="btn btn-danger btn-sm" href="/deleteClass/{{_class['id']}}"><i class="fa-solid fa-trash"></i> Delete</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="text-center">You haven't created any class</p>
+    {% endif %}
+  </div>
+  <hr>
+  <a class="btn btn-primary" href="/logout">Logout</a>
+</main>
 {% endblock %}

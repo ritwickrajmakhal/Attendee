@@ -1,0 +1,46 @@
+{% extends "layout.html" %}
+{% block body %}
+</section>
+{% if error%}
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <i class="fa-solid fa-triangle-exclamation"></i> {{error}}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{% endif %}
+<div class="container py-5 h-100">
+    <div class="row d-flex justify-content-center align-items-center h-100">
+        <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+            <div class="card shadow-2-strong" style="border-radius: 1rem;">
+                <div class="card-body p-5 text-center">
+                    <form action="/edit/{{formDetails['sno'] if formDetails else 0}}" method="post">
+                        <h3 class="mb-5">Create a class</h3>
+                        <div class="form-floating mb-3">
+                            <input type="text" value="{{formDetails['subject_name']}}" class="form-control" id="floatingInput" name="subject_name"
+                                placeholder="name@example.com" required>
+                            <label for="floatingInput">Enter your subject name</label>
+                        </div>
+                        <div class="input-group mb-3">
+                            <select class="form-select" name='class' aria-label="Default select example" required>
+                                {% if formDetails %}
+                                <option selected>{{formDetails['class']}}</option>
+                                {% else %}
+                                <option selected>Select a class</option>
+                                {% for class in audiences %}
+                                    <option value="{{class}}">{{class}}</option>
+                                {% endfor %}
+                                {% endif %}
+                            </select>
+                        </div>
+                        {% if formDetails %}
+                        <button class="btn btn-primary btn-md btn-block" type="submit">Save changes</button>
+                        {% else %}
+                        <button class="btn btn-primary btn-md btn-block" type="submit">Submit</button>
+                        {% endif %}
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</section>
+{% endblock %}
