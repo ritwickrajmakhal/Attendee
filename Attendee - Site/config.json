@@ -17,6 +17,7 @@
         "yt_url": "https://www.youtube.com/attendee",
         "insta_url": "https://www.instagram.com/attendee",
         "tw_url": "https://www.twiter.com/attendee",
-        "github_url": "https://github.com/ritwickrajmakhal/Automated-attendence-system"
+        "github_url": "https://github.com/ritwickrajmakhal/Automated-attendence-system",
+        "upload_location" : "static\\images"
     }
 }

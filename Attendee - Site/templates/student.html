@@ -1,13 +1,15 @@
 {% extends "layout.html" %}
 {% block body %}
-<main class="vh-100 container p-3" style="background-color: rgb(241, 239, 239);">
+{% set fname = 'images/'+details['table_name']+"/"+details['image_file'] %}
+<main class="container p-3" style="background-color: rgb(241, 239, 239);">
   <div class="d-flex justify-content-between align-items-center flex-wrap">
-    <img src="{{url_for('static',filename='images/profile_pic_logo.jpg')}}" class="img-fluid rounded-circle"
-      style="width:10rem;" alt="">
+    <img src="{{url_for('static',filename=fname)}}" class="img-fluid rounded-circle" style="height:10rem;width:10rem;" alt="{{details[name]}}">
     <div class="d-flex flex-column">
-      <p>Student Name: {{details[1]}}</p>
-        <p>Student id: {{details[0]}}</p>
-      <p>Date: {{currentDate}}</p>
+      <p>Student Name: {{details['name']}}</p>
+      <p>Student id: {{details['loginId']}}</p>
+      <p>Department: {{details['department']}}</p>
+      <p>Semester: {{details['semester']}}</p>
+      <p>Date: {{details['date']}}</p>
     </div>
   </div>
   <table class="table table-hover my-5">
@@ -28,7 +30,7 @@
       </tr>
     </tbody>
   </table>
-  <a class="btn btn-primary" href="/">Logout</a>
+  <a class="btn btn-primary" href="/logout">Logout</a>
 </main>
 {% endblock %}
 </body>

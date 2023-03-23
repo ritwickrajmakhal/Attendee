@@ -1,16 +1,18 @@
 {% extends "layout.html" %}
 {% block body %}
 <section class="vh-100">
-    <div class="alert alert-danger alert-dismissible fade show {{style}}" role="alert">
-        <i class="fa-solid fa-triangle-exclamation"></i> {{errorMsg}}
+    {% if error%}
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fa-solid fa-triangle-exclamation"></i> {{error}}
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
+    {% endif %}
     <div class="container py-5 h-100">
         <div class="row d-flex justify-content-center align-items-center h-100">
             <div class="col-12 col-md-8 col-lg-6 col-xl-5">
                 <div class="card shadow-2-strong" style="border-radius: 1rem;">
                     <div class="card-body p-5 text-center">
-                        <form action="/signup" method="post">
+                        <form action="/signup" method="post" enctype="multipart/form-data">
                             <h3 class="mb-5">Sign Up</h3>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
@@ -29,17 +31,16 @@
                             </div>
                             <div class="form-floating mb-3">
                                 <input type="password" class="form-control" name="password" id="floatingPassword"
-                                    placeholder="Password">
+                                    placeholder="Password" required>
                                 <label for="floatingPassword">New Password</label>
                             </div>
                             <div class="form-floating mb-3">
-                                <input type="password" class="form-control" id="floatingPassword"
-                                    placeholder="Password">
+                                <input type="password" name="confirm_password" class="form-control" id="floatingPassword"
+                                    placeholder="Password" required>
                                 <label for="floatingPassword">Confirm Password</label>
                             </div>
                             <div class="input-group mb-3">
-                                <select class="form-select" name='userType' aria-label="Default select example"
-                                    required>
+                                <select class="form-select" name='userType' aria-label="Default select example">
                                     <option selected>Select your role</option>
                                     <option value="1">Student</option>
                                     <option value="2">Facility</option>
@@ -49,19 +50,18 @@
                                 <div class="input-group mb-3">
                                     <select class="form-select" name='department' aria-label="Default select example">
                                         <option selected>Department</option>
-                                        <option value="1">Computer Science and Engineering</option>
+                                        <option value="cse">Computer Science and Engineering</option>
                                     </select>
-                                    <select class="form-select" name='semester' aria-label="Default select example"
-                                        required>
+                                    <select class="form-select" name='semester' aria-label="Default select example">
                                         <option selected>Semester</option>
-                                        <option value="1">semester 1</option>
-                                        <option value="2">semester 2</option>
-                                        <option value="3">semester 3</option>
-                                        <option value="4">semester 4</option>
-                                        <option value="5">semester 5</option>
-                                        <option value="6">semester 6</option>
-                                        <option value="7">semester 7</option>
-                                        <option value="8">semester 8</option>
+                                        <option value="sem1">semester 1</option>
+                                        <option value="sem2">semester 2</option>
+                                        <option value="sem3">semester 3</option>
+                                        <option value="sem4">semester 4</option>
+                                        <option value="sem5">semester 5</option>
+                                        <option value="sem6">semester 6</option>
+                                        <option value="sem7">semester 7</option>
+                                        <option value="sem8">semester 8</option>
                                     </select>
                                 </div>
                                 <input class="form-control mb-3" type="text" name="rollNumber" placeholder="Roll Number"
@@ -69,52 +69,19 @@
                                 <div class="mb-3 text-start">
                                     <label for="formFile" class="form-label">Upload Your image
                                     </label>
-                                    <input class="form-control" type="file" name="image" id="formFile">
-                                </div>
-                            </div>
-                            <div class="d-none text-start" id="facultyBlock">
-                                <label for="">Subjects: </label>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value="" name="subject"
-                                        id="subject1">
-                                    <label class="form-check-label" for="subject1">
-                                        Design and Analysis of Algorithms
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value="" name="subject"
-                                        id="subject2">
-                                    <label class="form-check-label" for="subject2">
-                                        Discrete Mathematics
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value="" name="subject"
-                                        id="subject3">
-                                    <label class="form-check-label" for="subject3">
-                                        Computer Architecture
-                                    </label>
+                                    <input class="form-control" type="file" accept=".jpg" name="image_file" id="formFile">
                                 </div>
                             </div>
 
                             <script>
                                 const userType = document.getElementsByName("userType")[0];
                                 userType.addEventListener('change', (event) => {
+                                    let studentBlock = document.querySelector("#studentBlock");
                                     if (event.target.value == 1) {
-                                        let studentBlock = document.querySelector("#studentBlock");
                                         studentBlock.classList.remove("d-none")
-                                        facultyBlock.classList.add("d-none")
                                     }
-                                    else if (event.target.value == 2) {
-                                        let facultyBlock = document.querySelector("#facultyBlock");
+                                    else{
                                         studentBlock.classList.add("d-none")
-                                        facultyBlock.classList.remove("d-none")
-
-                                    }
-                                    else {
-                                        studentBlock.classList.add("d-none")
-                                        facultyBlock.classList.add("d-none")
-
                                     }
                                 });
                             </script>
