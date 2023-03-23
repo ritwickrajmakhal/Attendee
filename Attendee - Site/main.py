@@ -215,14 +215,15 @@ def edit(sno):
                 try:
                     mycursor.execute("INSERT INTO `classrooms` (subject_name, class, faculty_name) VALUES (%s, %s, %s)",(subject_name,_class,faculty_name))
                     mydb.commit()
+                    
+                    mycursor.execute(f'CREATE TABLE `{mycursor.lastrowid}_Attendance` (`loginId` BIGINT NOT NULL , `name` VARCHAR(50) NOT NULL ) SELECT loginId, name FROM {_class}')
                     return app.redirect("/")
                 except:
-                    return render_template('edit.html',params=params,audiences=tables,sno=sno,error=f"Duplicate entry {subject_name} already exists.")
+                    return render_template('edit.html',params=params,audiences=tables,formDetails=details,error=f"Duplicate entry {subject_name} already exists.")
             else:
                 mycursor.execute("UPDATE `classrooms` SET `subject_name` = %s, `class` = %s WHERE `id` = %s",(subject_name,_class,sno))
                 mydb.commit()
                 return app.redirect("/")
-        print(details)
         return render_template('edit.html',params=params,audiences=tables,formDetails=details)
     return app.redirect("/")  
 @app.route('/deleteClass/<string:sno>',methods=['GET','POST'])
@@ -230,7 +231,22 @@ def deleteClass(sno):
     if isLoggedIn(['faculty_details']):
         mycursor.execute("DELETE FROM `classrooms` WHERE id = %s",(sno,))
         mydb.commit()
+        mycursor.execute("SHOW TABLES")
+        tables = mycursor.fetchall()
+        for table in tables:
+            if sno in table[0]:
+                mycursor.execute(f"DROP TABLE IF EXISTS {table[0]}")
+                break
+                
     return app.redirect("/")
-
+@app.route('/attendance/<string:sno>')
+def attendance(sno):
+    if isLoggedIn(tables) or isLoggedIn(['faculty_details']):
+        return render_template('attendance.html',params=params)
+    return app.redirect("/")
+@app.route('/startclass/<string:sno>',methods=['GET','POST'])
+def startClass(sno):
+    if isLoggedIn(['faculty_details']):
+        pass
 if __name__ == '__main__':
     app.run(debug=True)

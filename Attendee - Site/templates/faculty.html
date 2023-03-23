@@ -16,28 +16,39 @@
   <div>
     {% if classrooms %}
     <h3>Your classes:</h3>
-    <table class="table table-hover">
-      <thead>
-        <tr>
-          <th>Class name</th>
-          <th>Class</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody class="table-group-divider">
-        {% for _class in classrooms %}
-        <tr>
-          <td>{{_class['subject_name']}}</td>
-          <td>{{_class['class']}}</td>
-          <td>
-            <a class="btn btn-primary btn-sm" href="/edit/{{_class['id']}}"><i class="fa-solid fa-pen-to-square"></i>
-              Edit</a>
-            <a class="btn btn-danger btn-sm" href="/deleteClass/{{_class['id']}}"><i class="fa-solid fa-trash"></i> Delete</a>
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+    <div class="container text-center">
+      <div class="row">
+        <div class="col">
+          Subject
+        </div>
+        <div class="col">
+          Class
+        </div>
+        <div class="col">
+          Actions
+        </div>
+      </div>
+      <hr class="border-2">
+      {% for _class in classrooms %}
+      <div class="row">
+        <div class="col">
+          {{_class['subject_name']}}
+        </div>
+        <div class="col">
+          {{_class['class']}}
+        </div>
+        <div class="col d-flex flex-column justify-content-between mb-3">
+          <a class="btn btn-info btn-sm" href="/attendance/{{_class['id']}}"><i class="fa-regular fa-clipboard"></i>
+            Attendance</a>
+          <a class="btn btn-primary btn-sm" href="/edit/{{_class['id']}}"><i class="fa-solid fa-pen-to-square"></i>
+            Edit</a>
+          <a class="btn btn-danger btn-sm" href="/deleteClass/{{_class['id']}}"><i class="fa-solid fa-trash"></i>
+            Delete</a>
+        </div>
+        <hr>
+      </div>
+      {% endfor %}
+    </div>
     {% else %}
     <p class="text-center">You haven't created any class</p>
     {% endif %}
