@@ -1,8 +1,11 @@
-from flask import Flask, render_template, request, session
+from flask import Flask, render_template, request, session, make_response
 import json
 from datetime import datetime
 from methods import *
 import os
+import pandas as pd
+import io
+import cursor
 
 with open('config.json','r') as f:
     params = json.loads(f.read())['params']
@@ -27,7 +30,6 @@ def isLoggedIn(tables:list):
                 if checkPassword(password.encode("utf-8"),result[0].encode("utf-8")):
                     return True
     return False
-
 def fetchDetails(userType:str, tables:list, loginId:str, password:str):
     result = None
     details = None
@@ -56,8 +58,8 @@ def fetchDetails(userType:str, tables:list, loginId:str, password:str):
                         "date" : datetime.now().date()
                     }
                     return details         
-def fetchClassrooms(details):
-    mycursor.execute("SELECT * FROM `classrooms` WHERE faculty_name = %s",(details['name'],))
+def fetchClassrooms(loginId):
+    mycursor.execute("SELECT * FROM `classrooms` WHERE loginId = %s",(loginId,))
     result = mycursor.fetchall()
     if result:
         classrooms = []
@@ -65,7 +67,8 @@ def fetchClassrooms(details):
             classrooms.append({
                 "id" : i[0],
                 "subject_name" : i[1],
-                "class" : i[2]
+                "class" : i[2],
+                "status" : i[4]
             })
         return classrooms
     return None
@@ -86,8 +89,14 @@ def home():
         elif loginType=='2':
             details = fetchDetails(loginType,['faculty_details'],loginId,password)
             if details:
-                classrooms = fetchClassrooms(details)
-                return render_template('faculty.html',params=params,details=details,classrooms=classrooms)
+                classrooms = fetchClassrooms(loginId)
+                activeClassId = None
+                if classrooms:
+                    for _class in classrooms:
+                        if _class['status'] == 1:
+                            activeClassId = _class['id']
+                            break
+                return render_template('faculty.html',params=params,details=details,classrooms=classrooms,activeClassId=activeClassId)
             else:
                 return render_template('index.html',params=params,error="Please select the user Type or enter the correct user id or password")
     if request.method == 'POST':
@@ -210,13 +219,14 @@ def edit(sno):
         if request.method == 'POST': 
             subject_name = request.form['subject_name']
             _class = request.form['class']
-            faculty_name = fetchDetails(session.get('loginType'),['faculty_details'],session.get('loginId'),session.get('password'))['name']
+            loginId = fetchDetails(session.get('loginType'),['faculty_details'],session.get('loginId'),session.get('password'))['loginId']
             if sno == '0':
                 try:
-                    mycursor.execute("INSERT INTO `classrooms` (subject_name, class, faculty_name) VALUES (%s, %s, %s)",(subject_name,_class,faculty_name))
+                    mycursor.execute("INSERT INTO `classrooms` (subject_name, class, loginId) VALUES (%s, %s, %s)",(subject_name,_class,loginId))
                     mydb.commit()
-                    
-                    mycursor.execute(f'CREATE TABLE `{mycursor.lastrowid}_Attendance` (`loginId` BIGINT NOT NULL , `name` VARCHAR(50) NOT NULL ) SELECT loginId, name FROM {_class}')
+                    attendanceTableName = f"{mycursor.lastrowid}_Attendance"
+                    mycursor.execute(f'CREATE TABLE `{attendanceTableName}` (`loginId` BIGINT NOT NULL UNIQUE, `name` VARCHAR(50) NOT NULL ) SELECT loginId, name FROM {_class}')
+                    mycursor.execute(f"ALTER TABLE `{attendanceTableName}` ORDER BY `loginId` ASC")
                     return app.redirect("/")
                 except:
                     return render_template('edit.html',params=params,audiences=tables,formDetails=details,error=f"Duplicate entry {subject_name} already exists.")
@@ -239,14 +249,80 @@ def deleteClass(sno):
                 break
                 
     return app.redirect("/")
-@app.route('/attendance/<string:sno>')
-def attendance(sno):
-    if isLoggedIn(tables) or isLoggedIn(['faculty_details']):
-        return render_template('attendance.html',params=params)
-    return app.redirect("/")
-@app.route('/startclass/<string:sno>',methods=['GET','POST'])
-def startClass(sno):
+@app.route('/attendance/<string:id>',methods=['GET','POST'])
+def attendance(id):
     if isLoggedIn(['faculty_details']):
-        pass
+        attendanceTableName = f"{id}_attendance"
+        mycursor.execute(f"SELECT `subject_name`, `class` from classrooms where id = {id}")
+        result = mycursor.fetchone()
+        classDetails = {"subject_name":result[0],"class":result[1]}
+        mycursor.execute(f"SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{attendanceTableName}' ")
+        dates = mycursor.fetchall()[2:] # roll no and names are skipped which are there in the first and 2nd column
+        mycursor.execute(f"SELECT * FROM `{attendanceTableName}`")
+        result = mycursor.fetchall()
+        studentDetails = []
+        if result:
+            for i in result:
+                studentDetails.append({"roll_no":i[0],"name":i[1],"attendanceDetails":i[2:]}) # roll no and names are skipped which are there in the first and 2nd column       
+        return render_template('attendance.html',params=params,studentDetails=studentDetails,dates=dates,classDetails=classDetails,id=id)
+    return app.redirect("/")
+
+
+
+
+@app.route('/startclass/<string:faculty_id>',methods=['GET','POST'])
+def startClass(faculty_id):
+    if isLoggedIn(['faculty_details']):
+        classInfo = []
+        mycursor.execute(f"SELECT * FROM classrooms WHERE loginId = '{faculty_id}'")
+        result = mycursor.fetchall()
+        if result:
+            for i in result:
+                classInfo.append({"id":i[0],"subject_name":i[1],"class":i[2],"loginId":i[3],"status":i[4]})
+        else:
+            classInfo = None
+        if request.method == "POST":
+            classId = request.form['classId']
+            mycursor.execute(f"SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{classId}_attendance' ORDER BY ORDINAL_POSITION DESC LIMIT 1")
+            lastColumnName = mycursor.fetchone()[0]
+            mycursor.execute(f"ALTER TABLE `{classId}_attendance` ADD column `{datetime.now()}` BOOLEAN NOT NULL AFTER `{lastColumnName}`")
+            mycursor.execute(f"UPDATE `classrooms` SET `status` = '1' WHERE `id` = {classId}")
+            mydb.commit()
+            return app.redirect("/")
+        return render_template('startClassForm.html',params=params,classInfo=classInfo,error="You haven't created any class yet.")
+    return app.redirect("/")     
+@app.route('/stopclass/<string:id>',methods=['GET','POST'])
+def stopClass(id):
+    if isLoggedIn(['faculty_details']):
+        mycursor.execute(f"UPDATE `classrooms` SET `status` = '0' WHERE `id` = {id}")
+        mydb.commit()
+    return app.redirect("/")
+
+@app.route('/download/<string:id>')
+def download_Attendance_sheet(id):
+    mycursor.execute(f"SELECT `subject_name`, `class` from classrooms where id = {id}")
+    result = mycursor.fetchone()
+    fileName = f"{result[0]}-{result[1]}"
+    attendanceTableName = f"{id}_attendance"
+    mycursor.execute(f"SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{attendanceTableName}' ")
+    column_names = [column[0] for column in mycursor.fetchall()]
+    mycursor.execute(f"SELECT * FROM `{attendanceTableName}`")
+    data = mycursor.fetchall()
+    df = pd.DataFrame(data, columns=column_names)
+    # Convert the DataFrame to an Excel file
+    excel_file = io.BytesIO()
+    df.to_excel(excel_file, index=False)
+    excel_file.seek(0)
+
+    # Create a response that contains the Excel file as a file attachment
+    response = make_response(excel_file.getvalue())
+    response.headers['Content-Type'] = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    response.headers['Content-Disposition'] = f'attachment; filename={fileName}.xlsx'
+
+    return response
+        
+        
+        
+               
 if __name__ == '__main__':
     app.run(debug=True)

@@ -1,0 +1,34 @@
+{% extends "layout.html" %}
+{% block body %}
+</section>
+{% if classInfo==None %}
+<div class="alert alert-danger text-center" role="alert">
+    <h4 class="alert-heading">{{error}}</h4>
+    <a class="btn btn-danger" href="/">Go Back</a>
+  </div>
+{% else %}
+<div class="container py-5 h-100">
+    <div class="row d-flex justify-content-center align-items-center h-100">
+        <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+            <div class="card shadow-2-strong" style="border-radius: 1rem;">
+                <div class="card-body p-5 text-center">
+                    <form action="/startclass/{{classInfo[0]['loginId']}}" method="post">
+                        <h3 class="mb-5">Select your subject</h3>
+                        <div class="input-group mb-3">
+                            <select class="form-select" name='classId' aria-label="Default select example" required>
+                                <option selected>Select a Subject</option>
+                                {% for info in classInfo %}
+                                    <option value="{{info['id']}}">{{info['subject_name']}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <button class="btn btn-primary btn-md btn-block" type="submit">Start</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+</section>
+{% endblock %}

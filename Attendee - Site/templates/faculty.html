@@ -10,7 +10,11 @@
   </div>
   <div>
     <a class="btn btn-success my-2" href="/edit/0"><i class="fa-solid fa-plus"></i> Create a class</a>
-    <a class="btn btn-warning my-2" href="#"><i class="fa-solid fa-chalkboard-user"></i> Start class</a>
+    {% if activeClassId %}
+    <a class="btn btn-danger my-2" href="/stopclass/{{activeClassId}}"><i class="fa-solid fa-chalkboard-user"></i> Stop class</a>
+    {% else %}
+    <a class="btn btn-warning my-2" href="/startclass/{{details['loginId']}}"><i class="fa-solid fa-chalkboard-user"></i> Start class</a>
+    {% endif %}
   </div>
   <hr>
   <div>
@@ -31,9 +35,15 @@
       <hr class="border-2">
       {% for _class in classrooms %}
       <div class="row">
+        {% if _class['status'] %}
+        <div class="col text-success">
+          {{_class['subject_name']}}
+        </div>
+        {% else %}
         <div class="col">
           {{_class['subject_name']}}
         </div>
+        {% endif %}
         <div class="col">
           {{_class['class']}}
         </div>
