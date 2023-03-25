@@ -12,22 +12,26 @@
       <p>Date: {{details['date']}}</p>
     </div>
   </div>
-  <table class="table table-hover my-5">
+  <table class="table table-hover my-5 table-responsive">
     <thead>
       <tr>
-        <th>Class name</th>
+        <th>Subject name</th>
+        <th>Time</th>
         <th>Attendance status</th>
       </tr>
     </thead>
     <tbody class="table-group-divider">
+      {% for details in attendanceDetails %}
       <tr>
-        <td>Biology</td>
+        <td>{{details['subject_name']}}</td>
+        <td>{{details['date'].replace("_","/")[:-9]}} {{details['date'].replace("_",".")[11:]}}</td>
+        {% if details['status'] == True %}
         <td><i class="fa-solid fa-check"></i></td>
-      </tr>
-      <tr>
-        <td>Design analysis of algorithm</td>
+        {% else %}
         <td><i class="fa-solid fa-xmark"></i></td>
+        {% endif %}
       </tr>
+      {% endfor %}
     </tbody>
   </table>
   <a class="btn btn-primary" href="/logout">Logout</a>

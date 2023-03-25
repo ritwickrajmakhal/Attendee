@@ -8,7 +8,7 @@
                 <th>Roll Number</th>
                 <th>Name</th>
                 {% for date in dates %}
-                <th>{{date[0][:-7]}}</th>
+                <th>{{date[0].replace("_","/")[:-9]}} {{date[0].replace("_",".")[11:]}}</th>
                 {% endfor %}
             </tr>
             {% for details in studentDetails %}

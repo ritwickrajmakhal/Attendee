@@ -5,7 +5,6 @@ from methods import *
 import os
 import pandas as pd
 import io
-import cursor
 
 with open('config.json','r') as f:
     params = json.loads(f.read())['params']
@@ -80,10 +79,29 @@ def home():
         password = session.get('password')
         # validate credentials
         # make a details dictionary
+        attendanceDetails = []
         if loginType=='1':
             details = fetchDetails(loginType, tables,loginId,password)
             if details:
-                return render_template('student.html',params=params,details=details)
+                mycursor.execute(f"SELECT id, subject_name FROM `classrooms` WHERE class = %s",(details['table_name'],))
+                result = mycursor.fetchall()
+                if result:
+                    ids,subjects = [i[0] for i in result],[i[1] for i in result]
+                    for id,subject_name in zip(ids,subjects):
+                        attendanceTableName = f"{id}_attendance"
+                        columnName = datetime.now().strftime("%d_%m_%Y")
+                        mycursor.execute(f"SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{attendanceTableName}' AND COLUMN_NAME LIKE '%{columnName}%'")
+                        result = mycursor.fetchall()
+                        dates = [i[0] for i in result]
+                        for date in dates:
+                            mycursor.execute(f"SELECT {date} FROM {attendanceTableName} WHERE loginId = %s",(loginId,))
+                            status = mycursor.fetchone()[0]
+                            attendanceDetails.append({
+                                "subject_name" : subject_name,
+                                "date" : date,
+                                "status" : status
+                            })
+                return render_template('student.html',params=params,details=details,attendanceDetails=attendanceDetails)
             else:
                 return render_template('index.html',params=params,error="Please select the user Type or enter the correct user id or password")
         elif loginType=='2':
@@ -266,10 +284,6 @@ def attendance(id):
                 studentDetails.append({"roll_no":i[0],"name":i[1],"attendanceDetails":i[2:]}) # roll no and names are skipped which are there in the first and 2nd column       
         return render_template('attendance.html',params=params,studentDetails=studentDetails,dates=dates,classDetails=classDetails,id=id)
     return app.redirect("/")
-
-
-
-
 @app.route('/startclass/<string:faculty_id>',methods=['GET','POST'])
 def startClass(faculty_id):
     if isLoggedIn(['faculty_details']):
@@ -282,10 +296,16 @@ def startClass(faculty_id):
         else:
             classInfo = None
         if request.method == "POST":
+            mycursor.execute(f"SELECT `status` from `classrooms` WHERE loginId = '{faculty_id}'")
+            classStatuses = [i[0] for i in mycursor]
+            if 1 in classStatuses:
+                return render_template('startClassForm.html',params=params,classInfo=None,error="You have already started a class, stop that class before starting a new class")
             classId = request.form['classId']
-            mycursor.execute(f"SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{classId}_attendance' ORDER BY ORDINAL_POSITION DESC LIMIT 1")
+            attendanceTableName = f"{classId}_attendance"
+            mycursor.execute(f"SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{attendanceTableName}' ORDER BY ORDINAL_POSITION DESC LIMIT 1")
             lastColumnName = mycursor.fetchone()[0]
-            mycursor.execute(f"ALTER TABLE `{classId}_attendance` ADD column `{datetime.now()}` BOOLEAN NOT NULL AFTER `{lastColumnName}`")
+            newColumnName = datetime.now().strftime("%d_%m_%Y_%H_%M_%S")
+            mycursor.execute(f"ALTER TABLE `{attendanceTableName}` ADD COLUMN `{newColumnName}` TINYINT DEFAULT 0 AFTER `{lastColumnName}`")
             mycursor.execute(f"UPDATE `classrooms` SET `status` = '1' WHERE `id` = {classId}")
             mydb.commit()
             return app.redirect("/")
@@ -297,7 +317,6 @@ def stopClass(id):
         mycursor.execute(f"UPDATE `classrooms` SET `status` = '0' WHERE `id` = {id}")
         mydb.commit()
     return app.redirect("/")
-
 @app.route('/download/<string:id>')
 def download_Attendance_sheet(id):
     mycursor.execute(f"SELECT `subject_name`, `class` from classrooms where id = {id}")
@@ -320,9 +339,6 @@ def download_Attendance_sheet(id):
     response.headers['Content-Disposition'] = f'attachment; filename={fileName}.xlsx'
 
     return response
-        
-        
-        
-               
+    
 if __name__ == '__main__':
     app.run(debug=True)
