@@ -95,7 +95,7 @@ def home():
                         dates = [i[0] for i in result]
                         for date in dates:
                             mycursor.execute(f"SELECT {date} FROM {attendanceTableName} WHERE loginId = %s",(loginId,))
-                            status = mycursor.fetchone()[0]
+                            status = [i for i in mycursor.fetchone()]
                             attendanceDetails.append({
                                 "subject_name" : subject_name,
                                 "date" : date,
@@ -117,7 +117,7 @@ def home():
                 return render_template('faculty.html',params=params,details=details,classrooms=classrooms,activeClassId=activeClassId)
             else:
                 return render_template('index.html',params=params,error="Please select the user Type or enter the correct user id or password")
-    if request.method == 'POST':
+    elif request.method == 'POST':
         loginId = request.form['loginId']
         password = request.form['password']
         loginType = request.form['loginType']
@@ -168,6 +168,7 @@ def signUp():
             try:
                 sql = f"CREATE TABLE {table_name} (`loginId` BIGINT NOT NULL , `name` TEXT NOT NULL , `department` VARCHAR(10) NOT NULL , `semester` VARCHAR(10) NOT NULL , `email` VARCHAR(50) NOT NULL , `password` VARCHAR(250) NOT NULL , `image_file` VARCHAR(100) NOT NULL )"
                 mycursor.execute(sql)
+                mydb.commit()
             except:
                 pass
                 
@@ -193,6 +194,14 @@ def signUp():
                     val = (rollNumber,fullName,department,semester,email, password,f"{rollNumber}.jpg")
                     mycursor.execute(sql,val)
                     mydb.commit()
+                    # check whether any attendance sheet created in classrooms for his class if yes the add his name to those attendance sheets
+                    mycursor.execute(f"SELECT id FROM classrooms WHERE class = %s",(table_name,))
+                    ids = [i[0] for i in mycursor]
+                    for id in ids:
+                        mycursor.execute(f"INSERT INTO `{id}_attendance` (`loginId`, `name`) VALUES (%s, %s)",(rollNumber,fullName))
+                        mydb.commit()
+                    
+                    
                     return render_template('thanks-card.html',params=params,message="You've registered successfully")
         elif userType == '2' and checkPassword(confirm_password.encode("utf-8"),encrypt(password)):
             result = None
@@ -244,7 +253,9 @@ def edit(sno):
                     mydb.commit()
                     attendanceTableName = f"{mycursor.lastrowid}_Attendance"
                     mycursor.execute(f'CREATE TABLE `{attendanceTableName}` (`loginId` BIGINT NOT NULL UNIQUE, `name` VARCHAR(50) NOT NULL ) SELECT loginId, name FROM {_class}')
+                    mydb.commit()
                     mycursor.execute(f"ALTER TABLE `{attendanceTableName}` ORDER BY `loginId` ASC")
+                    mydb.commit()
                     return app.redirect("/")
                 except:
                     return render_template('edit.html',params=params,audiences=tables,formDetails=details,error=f"Duplicate entry {subject_name} already exists.")
