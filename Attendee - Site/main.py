@@ -5,6 +5,7 @@ from methods import *
 import os
 import pandas as pd
 import io
+from Camera import Camera
 
 with open('config.json','r') as f:
     params = json.loads(f.read())['params']
@@ -59,18 +60,15 @@ def fetchDetails(userType:str, tables:list, loginId:str, password:str):
                     return details         
 def fetchClassrooms(loginId):
     mycursor.execute("SELECT * FROM `classrooms` WHERE loginId = %s",(loginId,))
-    result = mycursor.fetchall()
-    if result:
-        classrooms = []
-        for i in result:
-            classrooms.append({
-                "id" : i[0],
-                "subject_name" : i[1],
-                "class" : i[2],
-                "status" : i[4]
-            })
-        return classrooms
-    return None
+    classrooms = []
+    for i in mycursor.fetchall():
+        classrooms.append({
+            "id" : i[0],
+            "subject_name" : i[1],
+            "class" : i[2],
+            "status" : i[4]
+        })
+    return classrooms
 @app.route('/',methods=['GET','POST'])
 def home():
     if 'loginId' in session:
@@ -91,8 +89,7 @@ def home():
                         attendanceTableName = f"{id}_attendance"
                         columnName = datetime.now().strftime("%d_%m_%Y")
                         mycursor.execute(f"SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{attendanceTableName}' AND COLUMN_NAME LIKE '%{columnName}%'")
-                        result = mycursor.fetchall()
-                        dates = [i[0] for i in result]
+                        dates = [i[0] for i in mycursor.fetchall()]
                         for date in dates:
                             mycursor.execute(f"SELECT {date} FROM {attendanceTableName} WHERE loginId = %s",(loginId,))
                             status = [i for i in mycursor.fetchone()]
@@ -242,14 +239,15 @@ def edit(sno):
         result = mycursor.fetchone()
         details = None
         if result:
-            details = {'sno':result[0],'subject_name':result[1],'class':result[2]}
+            details = {'sno':result[0],'subject_name':result[1],'class':result[2], 'cameraIndex':result[5]}
         if request.method == 'POST': 
             subject_name = request.form['subject_name']
             _class = request.form['class']
+            cameraIndex = request.form['cameraIndex']
             loginId = fetchDetails(session.get('loginType'),['faculty_details'],session.get('loginId'),session.get('password'))['loginId']
             if sno == '0':
                 try:
-                    mycursor.execute("INSERT INTO `classrooms` (subject_name, class, loginId) VALUES (%s, %s, %s)",(subject_name,_class,loginId))
+                    mycursor.execute("INSERT INTO `classrooms` (subject_name, class, loginId, cameraIndex) VALUES (%s, %s, %s, %s)",(subject_name,_class,loginId,cameraIndex))
                     mydb.commit()
                     attendanceTableName = f"{mycursor.lastrowid}_Attendance"
                     mycursor.execute(f'CREATE TABLE `{attendanceTableName}` (`loginId` BIGINT NOT NULL UNIQUE, `name` VARCHAR(50) NOT NULL ) SELECT loginId, name FROM {_class}')
@@ -300,12 +298,8 @@ def startClass(faculty_id):
     if isLoggedIn(['faculty_details']):
         classInfo = []
         mycursor.execute(f"SELECT * FROM classrooms WHERE loginId = '{faculty_id}'")
-        result = mycursor.fetchall()
-        if result:
-            for i in result:
-                classInfo.append({"id":i[0],"subject_name":i[1],"class":i[2],"loginId":i[3],"status":i[4]})
-        else:
-            classInfo = None
+        for i in mycursor.fetchall():
+            classInfo.append({"id":i[0],"subject_name":i[1],"class":i[2],"loginId":i[3],"status":i[4]})
         if request.method == "POST":
             mycursor.execute(f"SELECT `status` from `classrooms` WHERE loginId = '{faculty_id}'")
             classStatuses = [i[0] for i in mycursor]
