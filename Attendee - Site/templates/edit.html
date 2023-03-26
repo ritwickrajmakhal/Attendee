@@ -31,6 +31,9 @@
                                 {% endif %}
                             </select>
                         </div>
+                        <div class="mb-3">
+                            <input class="form-control" type="number" name="cameraIndex" value="{{formDetails['cameraIndex']}}" id="" placeholder="Index number of your camera">
+                        </div>
                         {% if formDetails %}
                         <button class="btn btn-primary btn-md btn-block" type="submit">Save changes</button>
                         {% else %}
