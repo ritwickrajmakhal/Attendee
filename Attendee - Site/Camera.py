@@ -7,22 +7,24 @@ from methods import *
 import threading
 import os
 from datetime import datetime
+import json
 
+with open('config.json','r') as f:
+    params = json.loads(f.read())['params']
+    
 class Camera:
-    def __init__(self,duration,className, mydb, mycursor):
+    def __init__(self,duration,className):
         '''
         duration in seconds
         '''
         self.state = False
-        self.mydb = mydb
-        self.mycursor = mycursor
         self.className = className
-        self.mycursor.execute("SELECT cameraIndex FROM classrooms WHERE class = %s",(className,))
-        self.cameraIndex = self.mycursor.fetchone()[0]
         self.duration = duration        
         self.known_images = os.listdir(f"static/images/{self.className}")
         
     def recognition(self,face_encodings:list,classId,columnName):
+        mydb = connectWithServer(params=params)   
+        mycursor = mydb.cursor()
         for face_encoding in face_encodings:
             # See if the face is a match for the known face(s)
             matches = face_recognition.compare_faces(self.known_face_encodings, face_encoding,tolerance=0.5)
@@ -31,14 +33,21 @@ class Camera:
             best_match_index = np.argmin(face_distances)
             if matches[best_match_index]:
                 loginId = self.known_images[best_match_index][:-4]
-                self.mycursor.execute(f"UPDATE `{classId}_attendance` SET `{columnName}` = '1' WHERE `loginId` = %s",(loginId,))
-                self.mydb.commit()
+                mycursor.execute(f"UPDATE `{classId}_attendance` SET `{columnName}` = '1' WHERE `loginId` = %s",(loginId,))
+                mydb.commit()
                 
+        mycursor.close()
+        mydb.close()
+
     def turnOn(self,classId,columnName):
+        mydb = connectWithServer(params=params)   
+        mycursor = mydb.cursor()
         self.state = True
         self.known_face_encodings = []
         self.known_images = self.known_images
-        self.video_capture = cv2.VideoCapture(self.cameraIndex)
+        mycursor.execute("SELECT cameraIndex FROM classrooms WHERE class = %s",(self.className,))
+        self.cameraIndex = mycursor.fetchone()[0]
+        self.video_capture = cv2.VideoCapture(int(self.cameraIndex))
         for image in self.known_images:
             img = face_recognition.load_image_file(f"static/images/{self.className}/{image}")
             self.known_face_encodings.append(face_recognition.face_encodings(img)[0])
@@ -59,11 +68,20 @@ class Camera:
             self.t2.start()
             self.t3.start()
             self.t4.start()
+            
+            self.t1.join()
+            self.t2.join()
+            self.t3.join()
+            self.t4.join()
                     
             sleep(1)
             self.duration -= 1
         self.turnOff(classId)
     def turnOff(self,classId):
+        mydb = connectWithServer(params=params)   
+        mycursor = mydb.cursor()
         self.state = False
         self.video_capture.release()
         cv2.destroyAllWindows()
+        mycursor.execute(f"UPDATE `classrooms` SET `status` = '0' WHERE `id` = {classId}")
+        mydb.commit()

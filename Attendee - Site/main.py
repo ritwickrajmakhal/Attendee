@@ -6,6 +6,7 @@ import os
 import pandas as pd
 import io
 from Camera import Camera
+import threading
 
 with open('config.json','r') as f:
     params = json.loads(f.read())['params']
@@ -14,6 +15,7 @@ mycursor = mydb.cursor()
 app = Flask(__name__)
 app.secret_key = "Atten-dee"
 app.config['UPLOAD_FOLDER'] = params['upload_location']
+cameraObj = None
 mycursor.execute("SHOW TABLES")
 tables = []
 for table in mycursor:
@@ -96,7 +98,7 @@ def home():
                             attendanceDetails.append({
                                 "subject_name" : subject_name,
                                 "date" : date,
-                                "status" : status
+                                "status" : status[0]
                             })
                 return render_template('student.html',params=params,details=details,attendanceDetails=attendanceDetails)
             else:
@@ -306,6 +308,9 @@ def startClass(faculty_id):
             if 1 in classStatuses:
                 return render_template('startClassForm.html',params=params,classInfo=None,error="You have already started a class, stop that class before starting a new class")
             classId = request.form['classId']
+            mycursor.execute("SELECT class FROM classrooms where id = %s",(classId,))
+            _class = mycursor.fetchone()[0]
+            duration = int(request.form['duration'])
             attendanceTableName = f"{classId}_attendance"
             mycursor.execute(f"SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{attendanceTableName}' ORDER BY ORDINAL_POSITION DESC LIMIT 1")
             lastColumnName = mycursor.fetchone()[0]
@@ -313,14 +318,20 @@ def startClass(faculty_id):
             mycursor.execute(f"ALTER TABLE `{attendanceTableName}` ADD COLUMN `{newColumnName}` TINYINT DEFAULT 0 AFTER `{lastColumnName}`")
             mycursor.execute(f"UPDATE `classrooms` SET `status` = '1' WHERE `id` = {classId}")
             mydb.commit()
+            
+            global cameraObj
+            cameraObj = Camera(duration,_class)
+            t1 = threading.Thread(target=cameraObj.turnOn,args=[classId,newColumnName])
+            t1.start()
+            
             return app.redirect("/")
         return render_template('startClassForm.html',params=params,classInfo=classInfo,error="You haven't created any class yet.")
     return app.redirect("/")     
 @app.route('/stopclass/<string:id>',methods=['GET','POST'])
 def stopClass(id):
     if isLoggedIn(['faculty_details']):
-        mycursor.execute(f"UPDATE `classrooms` SET `status` = '0' WHERE `id` = {id}")
-        mydb.commit()
+        if cameraObj:
+            cameraObj.turnOff(id)
     return app.redirect("/")
 @app.route('/download/<string:id>')
 def download_Attendance_sheet(id):
