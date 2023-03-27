@@ -25,10 +25,10 @@
                                 <option selected>{{formDetails['class']}}</option>
                                 {% else %}
                                 <option selected>Select a class</option>
+                                {% endif %}
                                 {% for class in audiences %}
                                     <option value="{{class}}">{{class}}</option>
                                 {% endfor %}
-                                {% endif %}
                             </select>
                         </div>
                         <div class="mb-3">
