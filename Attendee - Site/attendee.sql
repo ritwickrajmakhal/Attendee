@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 25, 2023 at 03:54 PM
+-- Generation Time: Mar 27, 2023 at 09:11 PM
 -- Server version: 10.4.27-MariaDB
 -- PHP Version: 8.2.0
 
@@ -32,15 +32,9 @@ CREATE TABLE `classrooms` (
   `subject_name` varchar(50) NOT NULL,
   `class` varchar(30) NOT NULL,
   `loginId` varchar(100) NOT NULL,
-  `status` tinyint(1) NOT NULL DEFAULT 0
+  `status` tinyint(1) NOT NULL DEFAULT 0,
+  `cameraIndex` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `classrooms`
---
-
-INSERT INTO `classrooms` (`id`, `subject_name`, `class`, `loginId`, `status`) VALUES
-(53, 'Mathematics', 'cse_sem5_2023', 'ritwickrajmakhal11@gmail.com', 0);
 
 -- --------------------------------------------------------
 
@@ -99,7 +93,7 @@ ALTER TABLE `faculty_details`
 -- AUTO_INCREMENT for table `classrooms`
 --
 ALTER TABLE `classrooms`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=54;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `contact`
