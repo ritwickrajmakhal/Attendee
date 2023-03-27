@@ -16,11 +16,17 @@ app = Flask(__name__)
 app.secret_key = "Atten-dee"
 app.config['UPLOAD_FOLDER'] = params['upload_location']
 cameraObj = None
-mycursor.execute("SHOW TABLES")
-tables = []
-for table in mycursor:
-    if f"{datetime.now().year}" in table[0]:
-        tables.append(table[0])
+def getAllTablesFromDB():
+    mydb = connectWithServer(params=params)   
+    mycursor = mydb.cursor()
+    mycursor.execute("SHOW TABLES")
+    tables = []
+    for table in mycursor:
+        if f"{datetime.now().year}" in table[0]:
+            tables.append(table[0])
+    mycursor.close()
+    mydb.close()
+    return tables
 def isLoggedIn(tables:list):
     mydb = connectWithServer(params=params)   
     mycursor = mydb.cursor()
@@ -94,7 +100,7 @@ def home():
         # make a details dictionary
         attendanceDetails = []
         if loginType=='1':
-            details = fetchDetails(loginType, tables,loginId,password)
+            details = fetchDetails(loginType, getAllTablesFromDB(),loginId,password)
             if details:
                 mycursor.execute(f"SELECT id, subject_name FROM `classrooms` WHERE class = %s",(details['table_name'],))
                 result = mycursor.fetchall()
@@ -136,7 +142,7 @@ def home():
         password = request.form['password']
         loginType = request.form['loginType']
         if loginType=='1':
-            details = fetchDetails(loginType, tables,loginId,password)
+            details = fetchDetails(loginType, getAllTablesFromDB(),loginId,password)
             if details:
                 session['loginType'] = loginType
                 session['loginId'] = loginId
@@ -279,12 +285,12 @@ def edit(sno):
                     mydb.commit()
                     return app.redirect("/")
                 except:
-                    return render_template('edit.html',params=params,audiences=tables,formDetails=details,error=f"Duplicate entry {subject_name} already exists.")
+                    return render_template('edit.html',params=params,audiences=getAllTablesFromDB(),formDetails=details,error=f"Duplicate entry {subject_name} already exists.")
             else:
                 mycursor.execute("UPDATE `classrooms` SET `subject_name` = %s, `class` = %s WHERE `id` = %s",(subject_name,_class,sno))
                 mydb.commit()
                 return app.redirect("/")
-        return render_template('edit.html',params=params,audiences=tables,formDetails=details)
+        return render_template('edit.html',params=params,audiences=getAllTablesFromDB(),formDetails=details)
     return app.redirect("/")  
 @app.route('/deleteClass/<string:sno>',methods=['GET','POST'])
 def deleteClass(sno):
@@ -360,13 +366,9 @@ def startClass(faculty_id):
     return app.redirect("/")     
 @app.route('/stopclass/<string:classId>',methods=['GET','POST'])
 def stopClass(classId):
-    mydb = connectWithServer(params=params)   
-    mycursor = mydb.cursor()
     if isLoggedIn(['faculty_details']):
         if cameraObj:
             cameraObj.turnOff(classId)
-    mydb.close()
-    mycursor.close()
     return app.redirect("/")
 @app.route('/download/<string:id>')
 def download_Attendance_sheet(id):

@@ -1,2 +1,3 @@
-Attendee - Model/images/
 __pycache__/
+Attendee - Site/static/images/*
+!Attendee - Site/static/images/logo.png

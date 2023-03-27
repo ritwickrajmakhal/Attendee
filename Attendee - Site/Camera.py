@@ -21,8 +21,6 @@ class Camera:
         self.className = className
         self.duration = duration        
         self.known_images = os.listdir(f"static/images/{self.className}")
-        self.mydb = connectWithServer(params=params)   
-        self.mycursor = self.mydb.cursor()
         
     def recognition(self,face_encoding):
         mydb = connectWithServer(params=params)   
@@ -40,12 +38,16 @@ class Camera:
         mycursor.close()
                 
     def turnOn(self,classId,columnName):
+        mydb = connectWithServer(params=params)   
+        mycursor = mydb.cursor()
         self.state = True
         self.known_face_encodings = []
         self.classId = classId
         self.columnName = columnName
-        self.mycursor.execute("SELECT cameraIndex FROM classrooms WHERE class = %s",(self.className,))
-        self.cameraIndex = self.mycursor.fetchone()[0]
+        mycursor.execute("SELECT cameraIndex FROM classrooms WHERE class = %s",(self.className,))
+        self.cameraIndex = mycursor.fetchone()[0]
+        mycursor.close()
+        mydb.close()
         self.video_capture = cv2.VideoCapture(int(self.cameraIndex))
         for image in self.known_images:
             img = face_recognition.load_image_file(f"static/images/{self.className}/{image}")
@@ -65,9 +67,11 @@ class Camera:
         self.turnOff(classId)
     def turnOff(self,classId):
         self.state = False
+        mydb = connectWithServer(params=params)   
+        mycursor = mydb.cursor()
         self.video_capture.release()
         cv2.destroyAllWindows()
-        self.mycursor.execute(f"UPDATE `classrooms` SET `status` = '0' WHERE `id` = {classId}")
-        self.mydb.commit()
-        self.mydb.close()
-        self.mycursor.close()
+        mycursor.execute(f"UPDATE `classrooms` SET `status` = '0' WHERE `id` = {classId}")
+        mydb.commit()
+        mydb.close()
+        mycursor.close()
