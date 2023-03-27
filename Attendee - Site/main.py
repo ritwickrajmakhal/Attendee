@@ -22,6 +22,8 @@ for table in mycursor:
     if f"{datetime.now().year}" in table[0]:
         tables.append(table[0])
 def isLoggedIn(tables:list):
+    mydb = connectWithServer(params=params)   
+    mycursor = mydb.cursor()
     if 'loginId' in session:
         loginId = session.get('loginId')
         password = session.get('password')
@@ -31,9 +33,12 @@ def isLoggedIn(tables:list):
             if result:
                 if checkPassword(password.encode("utf-8"),result[0].encode("utf-8")):
                     return True
+    mydb.close()
+    mycursor.close()
     return False
 def fetchDetails(userType:str, tables:list, loginId:str, password:str):
-    result = None
+    mydb = connectWithServer(params=params)   
+    mycursor = mydb.cursor()
     details = None
     for table in tables:
         mycursor.execute(f"SELECT `password` FROM {table} WHERE loginId = %s",(loginId,))
@@ -42,6 +47,8 @@ def fetchDetails(userType:str, tables:list, loginId:str, password:str):
             if checkPassword(password.encode("utf-8"),result[0].encode("utf-8")):
                 mycursor.execute(f"SELECT * FROM {table} WHERE loginId = %s",(loginId,))
                 result = mycursor.fetchone()
+                mydb.close()
+                mycursor.close()
                 if userType == '1':
                     details = {
                         "loginId" : result[0],
@@ -59,8 +66,10 @@ def fetchDetails(userType:str, tables:list, loginId:str, password:str):
                         "name" : result[0],
                         "date" : datetime.now().date()
                     }
-                    return details         
+                    return details                   
 def fetchClassrooms(loginId):
+    mydb = connectWithServer(params=params)   
+    mycursor = mydb.cursor()
     mycursor.execute("SELECT * FROM `classrooms` WHERE loginId = %s",(loginId,))
     classrooms = []
     for i in mycursor.fetchall():
@@ -70,9 +79,13 @@ def fetchClassrooms(loginId):
             "class" : i[2],
             "status" : i[4]
         })
+    mydb.close()
+    mycursor.close()
     return classrooms
 @app.route('/',methods=['GET','POST'])
 def home():
+    mydb = connectWithServer(params=params)   
+    mycursor = mydb.cursor()
     if 'loginId' in session:
         loginId = session.get('loginId')
         loginType = session.get('loginType')
@@ -100,6 +113,8 @@ def home():
                                 "date" : date,
                                 "status" : status[0]
                             })
+                    mydb.close()
+                    mycursor.close()
                 return render_template('student.html',params=params,details=details,attendanceDetails=attendanceDetails)
             else:
                 return render_template('index.html',params=params,error="Please select the user Type or enter the correct user id or password")
@@ -148,6 +163,8 @@ def logout():
     return app.redirect("/")
 @app.route('/signup',methods=['GET','POST'])
 def signUp():
+    mydb = connectWithServer(params=params)   
+    mycursor = mydb.cursor()
     mycursor.execute("SHOW TABLES")
     tables = []
     for table in mycursor:
@@ -199,8 +216,6 @@ def signUp():
                     for id in ids:
                         mycursor.execute(f"INSERT INTO `{id}_attendance` (`loginId`, `name`) VALUES (%s, %s)",(rollNumber,fullName))
                         mydb.commit()
-                    
-                    
                     return render_template('thanks-card.html',params=params,message="You've registered successfully")
         elif userType == '2' and checkPassword(confirm_password.encode("utf-8"),encrypt(password)):
             result = None
@@ -223,6 +238,8 @@ def signUp():
     return render_template('signup.html',params=params)
 @app.route('/contact',methods=['GET','POST'])
 def contact():
+    mydb = connectWithServer(params=params)   
+    mycursor = mydb.cursor()
     if request.method == "POST":
         fullName = request.form['firstName'] +" "+ request.form['lastName']
         email = request.form['email']
@@ -231,11 +248,15 @@ def contact():
         val = (fullName,email,msg)
         mycursor.execute(sql,val)
         mydb.commit()
+        mydb.close()
+        mycursor.close()
         return render_template('thanks-card.html',params=params, message="for getting in touch!")
     else:
         return render_template('contact.html',params=params)
 @app.route('/edit/<string:sno>',methods=['GET','POST'])
 def edit(sno):
+    mydb = connectWithServer(params=params)   
+    mycursor = mydb.cursor()
     if isLoggedIn(['faculty_details']):
         mycursor.execute("SELECT * FROM `classrooms` WHERE id = %s",(sno,))
         result = mycursor.fetchone()
@@ -267,6 +288,8 @@ def edit(sno):
     return app.redirect("/")  
 @app.route('/deleteClass/<string:sno>',methods=['GET','POST'])
 def deleteClass(sno):
+    mydb = connectWithServer(params=params)   
+    mycursor = mydb.cursor()
     if isLoggedIn(['faculty_details']):
         mycursor.execute("DELETE FROM `classrooms` WHERE id = %s",(sno,))
         mydb.commit()
@@ -276,10 +299,13 @@ def deleteClass(sno):
             if sno in table[0]:
                 mycursor.execute(f"DROP TABLE IF EXISTS {table[0]}")
                 break
-                
+    mydb.close()
+    mycursor.close()
     return app.redirect("/")
 @app.route('/attendance/<string:id>',methods=['GET','POST'])
 def attendance(id):
+    mydb = connectWithServer(params=params)   
+    mycursor = mydb.cursor()
     if isLoggedIn(['faculty_details']):
         attendanceTableName = f"{id}_attendance"
         mycursor.execute(f"SELECT `subject_name`, `class` from classrooms where id = {id}")
@@ -290,6 +316,8 @@ def attendance(id):
         mycursor.execute(f"SELECT * FROM `{attendanceTableName}`")
         result = mycursor.fetchall()
         studentDetails = []
+        mydb.close()
+        mycursor.close()
         if result:
             for i in result:
                 studentDetails.append({"roll_no":i[0],"name":i[1],"attendanceDetails":i[2:]}) # roll no and names are skipped which are there in the first and 2nd column       
@@ -297,6 +325,8 @@ def attendance(id):
     return app.redirect("/")
 @app.route('/startclass/<string:faculty_id>',methods=['GET','POST'])
 def startClass(faculty_id):
+    mydb = connectWithServer(params=params)   
+    mycursor = mydb.cursor()
     if isLoggedIn(['faculty_details']):
         classInfo = []
         mycursor.execute(f"SELECT * FROM classrooms WHERE loginId = '{faculty_id}'")
@@ -323,18 +353,25 @@ def startClass(faculty_id):
             cameraObj = Camera(duration,_class)
             t1 = threading.Thread(target=cameraObj.turnOn,args=[classId,newColumnName])
             t1.start()
-            
+            mycursor.close()
+            mydb.close()
             return app.redirect("/")
         return render_template('startClassForm.html',params=params,classInfo=classInfo,error="You haven't created any class yet.")
     return app.redirect("/")     
-@app.route('/stopclass/<string:id>',methods=['GET','POST'])
-def stopClass(id):
+@app.route('/stopclass/<string:classId>',methods=['GET','POST'])
+def stopClass(classId):
+    mydb = connectWithServer(params=params)   
+    mycursor = mydb.cursor()
     if isLoggedIn(['faculty_details']):
         if cameraObj:
-            cameraObj.turnOff(id)
+            cameraObj.turnOff(classId)
+    mydb.close()
+    mycursor.close()
     return app.redirect("/")
 @app.route('/download/<string:id>')
 def download_Attendance_sheet(id):
+    mydb = connectWithServer(params=params)   
+    mycursor = mydb.cursor()
     mycursor.execute(f"SELECT `subject_name`, `class` from classrooms where id = {id}")
     result = mycursor.fetchone()
     fileName = f"{result[0]}-{result[1]}"
@@ -353,7 +390,8 @@ def download_Attendance_sheet(id):
     response = make_response(excel_file.getvalue())
     response.headers['Content-Type'] = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     response.headers['Content-Disposition'] = f'attachment; filename={fileName}.xlsx'
-
+    mydb.close()
+    mycursor.close()
     return response
     
 if __name__ == '__main__':
