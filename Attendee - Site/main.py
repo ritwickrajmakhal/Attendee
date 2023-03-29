@@ -172,10 +172,7 @@ def signUp():
     mydb = connectWithServer(params=params)   
     mycursor = mydb.cursor()
     mycursor.execute("SHOW TABLES")
-    tables = []
-    for table in mycursor:
-        if f"{datetime.now().year}" in table[0]:
-            tables.append(table[0])
+    tables = getAllTablesFromDB()
     if request.method == "POST":
         fullName = request.form['firstName'] +" "+ request.form['lastName']
         email = request.form['email']
@@ -193,9 +190,7 @@ def signUp():
                 mydb.commit()
             except:
                 pass
-                
             # Check whether roll no exists in a table or not
-            result = None
             for table in tables:
                 mycursor.execute(f"SELECT * FROM {table} WHERE loginId = %s",(rollNumber,))
                 result = mycursor.fetchone()
@@ -287,7 +282,7 @@ def edit(sno):
                 except:
                     return render_template('edit.html',params=params,audiences=getAllTablesFromDB(),formDetails=details,error=f"Duplicate entry {subject_name} already exists.")
             else:
-                mycursor.execute("UPDATE `classrooms` SET `subject_name` = %s, `class` = %s WHERE `id` = %s",(subject_name,_class,sno))
+                mycursor.execute("UPDATE `classrooms` SET `subject_name` = %s, `class` = %s, cameraIndex = %s WHERE `id` = %s",(subject_name,_class,cameraIndex,sno,))
                 mydb.commit()
                 return app.redirect("/")
         return render_template('edit.html',params=params,audiences=getAllTablesFromDB(),formDetails=details)
@@ -369,6 +364,8 @@ def stopClass(classId):
     if isLoggedIn(['faculty_details']):
         if cameraObj:
             cameraObj.turnOff(classId)
+        mycursor.execute(f"UPDATE `classrooms` SET `status` = '0' WHERE `id` = {classId}")
+        mydb.commit()
     return app.redirect("/")
 @app.route('/download/<string:id>')
 def download_Attendance_sheet(id):
