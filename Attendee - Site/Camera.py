@@ -6,14 +6,13 @@ import numpy as np
 from methods import * 
 from concurrent.futures import ThreadPoolExecutor
 import os
-from datetime import datetime
 import json
 
 with open('config.json','r') as f:
     params = json.loads(f.read())['params']
     
 class Camera:
-    def __init__(self,duration,className):
+    def __init__(self,duration,className,subject_name):
         '''
         duration in seconds
         '''
@@ -21,6 +20,10 @@ class Camera:
         self.className = className
         self.duration = duration        
         self.known_images = os.listdir(f"static/images/{self.className}")
+        self.mydb = connectWithServer(params=params)   
+        self.mycursor = self.mydb.cursor()
+        self.mycursor.execute("SELECT cameraIndex FROM classrooms WHERE subject_name = %s",(subject_name,))
+        self.cameraIndex =self.mycursor.fetchone()[0]
         
     def recognition(self,face_encoding):
         mydb = connectWithServer(params=params)   
@@ -38,14 +41,10 @@ class Camera:
         mydb.close()
                 
     def turnOn(self,classId,columnName):
-        self.mydb = connectWithServer(params=params)   
-        self.mycursor = self.mydb.cursor()
         self.state = True
         self.known_face_encodings = []
         self.classId = classId
         self.columnName = columnName
-        self.mycursor.execute("SELECT cameraIndex FROM classrooms WHERE class = %s",(self.className,))
-        self.cameraIndex =self.mycursor.fetchone()[0]
         self.video_capture = cv2.VideoCapture(int(self.cameraIndex))
         for image in self.known_images:
             img = face_recognition.load_image_file(f"static/images/{self.className}/{image}")
@@ -67,3 +66,5 @@ class Camera:
         self.state = False
         self.video_capture.release()
         cv2.destroyAllWindows()
+        self.mycursor.execute(f"UPDATE `classrooms` SET `status` = '0' WHERE `id` = {classId}")
+        self.mydb.commit()

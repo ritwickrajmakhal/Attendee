@@ -15,10 +15,10 @@
                     <form action="/startclass/{{classInfo[0]['loginId']}}" method="post">
                         <h3 class="mb-5">Select your subject</h3>
                         <div class="input-group mb-3">
-                            <select class="form-select" name='classId' aria-label="Default select example" required>
+                            <select class="form-select" name='subject_name' aria-label="Default select example" required>
                                 <option selected>Select a Subject</option>
                                 {% for info in classInfo %}
-                                    <option value="{{info['id']}}">{{info['subject_name']}}</option>
+                                    <option value="{{info['subject_name']}}">{{info['subject_name']}}</option>
                                 {% endfor %}
                             </select>
                         </div>

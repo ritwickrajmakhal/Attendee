@@ -338,9 +338,14 @@ def startClass(faculty_id):
             classStatuses = [i[0] for i in mycursor]
             if 1 in classStatuses:
                 return render_template('startClassForm.html',params=params,classInfo=None,error="You have already started a class, stop that class before starting a new class")
-            classId = request.form['classId']
-            mycursor.execute("SELECT class FROM classrooms where id = %s",(classId,))
-            _class = mycursor.fetchone()[0]
+            subject_name = request.form['subject_name']
+            
+            for info in classInfo:
+                if info['subject_name'] == f"{subject_name}":
+                    classId = info['id']
+                    _class = info['class']
+                    break
+                
             duration = int(request.form['duration'])
             attendanceTableName = f"{classId}_attendance"
             mycursor.execute(f"SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{attendanceTableName}' ORDER BY ORDINAL_POSITION DESC LIMIT 1")
@@ -351,9 +356,10 @@ def startClass(faculty_id):
             mydb.commit()
             
             global cameraObj
-            cameraObj = Camera(duration,_class)
-            t1 = threading.Thread(target=cameraObj.turnOn,args=[classId,newColumnName])
+            cameraObj = Camera(duration,_class,subject_name)
+            t1 = threading.Thread(target=cameraObj.turnOn,args=[classId,newColumnName,])
             t1.start()
+            
             mycursor.close()
             mydb.close()
             return app.redirect("/")
