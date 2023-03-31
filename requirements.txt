@@ -1,0 +1,7 @@
+Flask
+pandas
+opencv-python
+cmake
+face_recognition
+numpy
+mysql-connector-python
