@@ -10,8 +10,6 @@ import threading
 
 with open('config.json','r') as f:
     params = json.loads(f.read())['params']
-# mydb = connectWithServer(params=params)   
-# mycursor = mydb.cursor()
 app = Flask(__name__)
 app.secret_key = "Atten-dee"
 app.config['UPLOAD_FOLDER'] = params['upload_location']
@@ -119,8 +117,8 @@ def home():
                                 "date" : date,
                                 "status" : status[0]
                             })
-                    mydb.close()
                     mycursor.close()
+                    mydb.close()
                 return render_template('student.html',params=params,details=details,attendanceDetails=attendanceDetails)
             else:
                 return render_template('index.html',params=params,error="Please select the user Type or enter the correct user id or password")
@@ -218,13 +216,10 @@ def signUp():
         elif userType == '2' and checkPassword(confirm_password.encode("utf-8"),password):
             mycursor.execute("SELECT * FROM `faculty_details` WHERE loginId = %s",(email,))
             result = mycursor.fetchone()
-            print(result)
             if result:
                 return render_template('thanks-card.html',params=params,message="You've already registered")
             else:
-                sql = f"INSERT INTO `faculty_details` (`name`, `loginId`, `password`) VALUES (%s, %s, %s)"
-                val = (fullName,email, password)
-                mycursor.execute(sql,val)
+                mycursor.execute(f"INSERT INTO `faculty_details` (`name`, `loginId`, `password`) VALUES (%s, %s, %s)",(fullName,email, password))
                 mydb.commit()
                 return render_template('thanks-card.html',params=params,message="You've registered successfully")
         else:
@@ -242,8 +237,8 @@ def contact():
         val = (fullName,email,msg)
         mycursor.execute(sql,val)
         mydb.commit()
-        mydb.close()
         mycursor.close()
+        mydb.close()
         return render_template('thanks-card.html',params=params, message="for getting in touch!")
     else:
         return render_template('contact.html',params=params)
@@ -293,8 +288,8 @@ def deleteClass(sno):
             if sno in table[0]:
                 mycursor.execute(f"DROP TABLE IF EXISTS {table[0]}")
                 break
-    mydb.close()
     mycursor.close()
+    mydb.close()
     return app.redirect("/")
 @app.route('/attendance/<string:id>',methods=['GET','POST'])
 def attendance(id):
@@ -310,8 +305,8 @@ def attendance(id):
         mycursor.execute(f"SELECT * FROM `{attendanceTableName}`")
         result = mycursor.fetchall()
         studentDetails = []
-        mydb.close()
         mycursor.close()
+        mydb.close()
         if result:
             for i in result:
                 studentDetails.append({"roll_no":i[0],"name":i[1],"attendanceDetails":i[2:]}) # roll no and names are skipped which are there in the first and 2nd column       
@@ -390,8 +385,8 @@ def download_Attendance_sheet(id):
     response = make_response(excel_file.getvalue())
     response.headers['Content-Type'] = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     response.headers['Content-Disposition'] = f'attachment; filename={fileName}.xlsx'
-    mydb.close()
     mycursor.close()
+    mydb.close()
     return response
     
 if __name__ == '__main__':
