@@ -10,8 +10,8 @@ import threading
 
 with open('config.json','r') as f:
     params = json.loads(f.read())['params']
-mydb = connectWithServer(params=params)   
-mycursor = mydb.cursor()
+# mydb = connectWithServer(params=params)   
+# mycursor = mydb.cursor()
 app = Flask(__name__)
 app.secret_key = "Atten-dee"
 app.config['UPLOAD_FOLDER'] = params['upload_location']
@@ -171,15 +171,13 @@ def logout():
 def signUp():
     mydb = connectWithServer(params=params)   
     mycursor = mydb.cursor()
-    mycursor.execute("SHOW TABLES")
-    tables = getAllTablesFromDB()
     if request.method == "POST":
         fullName = request.form['firstName'] +" "+ request.form['lastName']
         email = request.form['email']
-        password = request.form['password']
+        password = encrypt(request.form['password'])
         confirm_password = request.form['confirm_password']
         userType = request.form['userType']
-        if checkPassword(confirm_password.encode("utf-8"),encrypt(password)) and userType == '1':
+        if checkPassword(confirm_password.encode("utf-8"),password) and userType == '1':
             department = request.form['department']
             semester = request.form['semester']
             rollNumber = request.form['rollNumber']
@@ -191,45 +189,40 @@ def signUp():
             except:
                 pass
             # Check whether roll no exists in a table or not
+            tables = getAllTablesFromDB()
             for table in tables:
                 mycursor.execute(f"SELECT * FROM {table} WHERE loginId = %s",(rollNumber,))
                 result = mycursor.fetchone()
                 if result:
-                    break
-            if result:
-                return render_template('thanks-card.html',params=params,message="You've already registered")
-            else:
-                sql = f"INSERT INTO {table_name} (`loginId`, `name`, `department`, `semester`, `email`, `password`, `image_file`) VALUES (%s, %s, %s, %s, %s, %s, %s)"
-                password = encrypt(password)
-                f = request.files['image_file']
-                if f.content_type == 'image/jpeg':
-                    try:
-                        os.mkdir(os.path.join(app.config['UPLOAD_FOLDER']+f"/{table_name}"))
-                    except:
-                        pass
-                    f.save(os.path.join(app.config['UPLOAD_FOLDER']+f"/{table_name}",f"{rollNumber}.jpg"))
-                    val = (rollNumber,fullName,department,semester,email, password,f"{rollNumber}.jpg")
-                    mycursor.execute(sql,val)
+                    return render_template('thanks-card.html',params=params,message="You've already registered")
+                
+            f = request.files['image_file']
+            if f.content_type == 'image/jpeg':
+                try:
+                    os.mkdir(os.path.join(app.config['UPLOAD_FOLDER']+f"/{table_name}"))
+                except:
+                    pass
+                f.save(os.path.join(app.config['UPLOAD_FOLDER']+f"/{table_name}",f"{rollNumber}.jpg"))
+                mycursor.execute(f"INSERT INTO {table_name} (`loginId`, `name`, `department`, `semester`, `email`, `password`, `image_file`) VALUES (%s, %s, %s, %s, %s, %s, %s)",(rollNumber,fullName,department,semester,email, password,f"{rollNumber}.jpg"))
+                mydb.commit()
+                
+                # check whether any attendance sheet created in classrooms for his class if yes the add his name to those attendance sheets
+                mycursor.execute(f"SELECT id FROM classrooms WHERE class = %s",(table_name,))
+                for id in mycursor.fetchall():
+                    mycursor.execute(f"INSERT INTO `{id[0]}_attendance` (`loginId`, `name`) VALUES (%s, %s)",(rollNumber,fullName))
                     mydb.commit()
-                    # check whether any attendance sheet created in classrooms for his class if yes the add his name to those attendance sheets
-                    mycursor.execute(f"SELECT id FROM classrooms WHERE class = %s",(table_name,))
-                    ids = [i[0] for i in mycursor]
-                    for id in ids:
-                        mycursor.execute(f"INSERT INTO `{id}_attendance` (`loginId`, `name`) VALUES (%s, %s)",(rollNumber,fullName))
-                        mydb.commit()
-                    return render_template('thanks-card.html',params=params,message="You've registered successfully")
-        elif userType == '2' and checkPassword(confirm_password.encode("utf-8"),encrypt(password)):
-            result = None
-            for table in tables:
-                mycursor.execute(f"SELECT * FROM `faculty_details` WHERE loginId = %s",(email,))
-                result = mycursor.fetchone()
-                if result:
-                    break
+                return render_template('thanks-card.html',params=params,message="You've registered successfully")
+            else:
+                return render_template('signup.html',params=params,error="Please upload your image in jpeg format")
+            
+        elif userType == '2' and checkPassword(confirm_password.encode("utf-8"),password):
+            mycursor.execute("SELECT * FROM `faculty_details` WHERE loginId = %s",(email,))
+            result = mycursor.fetchone()
+            print(result)
             if result:
                 return render_template('thanks-card.html',params=params,message="You've already registered")
             else:
                 sql = f"INSERT INTO `faculty_details` (`name`, `loginId`, `password`) VALUES (%s, %s, %s)"
-                password = encrypt(password)
                 val = (fullName,email, password)
                 mycursor.execute(sql,val)
                 mydb.commit()
@@ -368,6 +361,8 @@ def startClass(faculty_id):
 @app.route('/stopclass/<string:classId>',methods=['GET','POST'])
 def stopClass(classId):
     if isLoggedIn(['faculty_details']):
+        mydb = connectWithServer(params=params)   
+        mycursor = mydb.cursor()
         if cameraObj:
             cameraObj.turnOff(classId)
         mycursor.execute(f"UPDATE `classrooms` SET `status` = '0' WHERE `id` = {classId}")
