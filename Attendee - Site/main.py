@@ -1,5 +1,4 @@
 from flask import Flask, render_template, request, session, make_response
-import json
 from datetime import datetime
 from methods import *
 import os
@@ -8,84 +7,11 @@ import io
 from Camera import Camera
 import threading
 
-with open('config.json','r') as f:
-    params = json.loads(f.read())['params']
 app = Flask(__name__)
 app.secret_key = "Atten-dee"
 app.config['UPLOAD_FOLDER'] = params['upload_location']
 cameraObj = None
-def getAllTablesFromDB():
-    mydb = connectWithServer(params=params)   
-    mycursor = mydb.cursor()
-    mycursor.execute("SHOW TABLES")
-    tables = []
-    for table in mycursor:
-        if f"{datetime.now().year}" in table[0]:
-            tables.append(table[0])
-    mycursor.close()
-    mydb.close()
-    return tables
-def isLoggedIn(tables:list):
-    mydb = connectWithServer(params=params)   
-    mycursor = mydb.cursor()
-    if 'loginId' in session:
-        loginId = session.get('loginId')
-        password = session.get('password')
-        for table in tables:
-            mycursor.execute(f"SELECT `password` FROM {table} WHERE loginId = %s",(loginId,))
-            result = mycursor.fetchone()
-            if result:
-                if checkPassword(password.encode("utf-8"),result[0].encode("utf-8")):
-                    return True
-    mydb.close()
-    mycursor.close()
-    return False
-def fetchDetails(userType:str, tables:list, loginId:str, password:str):
-    mydb = connectWithServer(params=params)   
-    mycursor = mydb.cursor()
-    details = None
-    for table in tables:
-        mycursor.execute(f"SELECT `password` FROM {table} WHERE loginId = %s",(loginId,))
-        result = mycursor.fetchone()
-        if result:
-            if checkPassword(password.encode("utf-8"),result[0].encode("utf-8")):
-                mycursor.execute(f"SELECT * FROM {table} WHERE loginId = %s",(loginId,))
-                result = mycursor.fetchone()
-                mydb.close()
-                mycursor.close()
-                if userType == '1':
-                    details = {
-                        "loginId" : result[0],
-                        "name" : result[1],
-                        "department" : result[2],
-                        "semester" : result[3],
-                        "image_file" : result[6],
-                        "date" : datetime.now().date(),
-                        "table_name" : table
-                    }
-                    return details
-                else:
-                    details = {
-                        "loginId" : result[1],
-                        "name" : result[0],
-                        "date" : datetime.now().date()
-                    }
-                    return details                   
-def fetchClassrooms(loginId):
-    mydb = connectWithServer(params=params)   
-    mycursor = mydb.cursor()
-    mycursor.execute("SELECT * FROM `classrooms` WHERE loginId = %s",(loginId,))
-    classrooms = []
-    for i in mycursor.fetchall():
-        classrooms.append({
-            "id" : i[0],
-            "subject_name" : i[1],
-            "class" : i[2],
-            "status" : i[4]
-        })
-    mydb.close()
-    mycursor.close()
-    return classrooms
+
 @app.route('/',methods=['GET','POST'])
 def home():
     mydb = connectWithServer(params=params)   

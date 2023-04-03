@@ -1,35 +1,41 @@
 {% extends "layout.html" %}
 {% block body %}
 <section class="container">
-    <div class="table-responsive">
-        <table class="table table-bordered caption-top">
-            <caption class="text-center my-2 fw-bold">{{classDetails['subject_name']}} - {{classDetails['class']}}</caption>
-            <tr>
-                <th>Roll Number</th>
-                <th>Name</th>
-                <th>Class Attended</th>
-                {% for date in dates %}
-                <th>{{date[0].replace("_","/")[:-9]}} {{date[0].replace("_",".")[11:]}}</th>
+    <form action="/attendance/{{id}}" method="post">
+        <div class="table-responsive">
+            <table class="table table-bordered caption-top">
+                <caption class="text-center my-2 fw-bold">{{classDetails['subject_name']}} - {{classDetails['class']}}
+                </caption>
+                <tr>
+                    <th>Roll Number</th>
+                    <th>Name</th>
+                    <th>Class Attended</th>
+                    {% for date in dates %}
+                    <th>{{date[0].replace("_","/")[:-9]}} {{date[0].replace("_",".")[11:]}}</th>
+                    {% endfor %}
+                </tr>
+                {% for details in studentDetails %}
+                <tr>
+                    <td>{{details['roll_no']}}</td>
+                    <td>{{details['name']}}</td>
+                    <td>{{details['class_attended']}}</td>
+                    {% for attendance in details['attendanceDetails'] %}
+                    {% if attendance == True %}
+                    <td><input class="form-check-input" type="checkbox" value="1" id="flexCheckChecked" checked></td>
+                    {% else %}
+                    <td><input class="form-check-input" type="checkbox" value="0" id="flexCheckDefault"></td>
+                    {% endif %}
+                    {% endfor %}
+                </tr>
                 {% endfor %}
-            </tr>
-            {% for details in studentDetails %}
-            <tr>
-                <td>{{details['roll_no']}}</td>
-                <td>{{details['name']}}</td>
-                <td>{{details['class_attended']}}</td>
-                {% for attendance in details['attendanceDetails'] %}
-                {% if attendance == True %}
-                <td><input class="form-check-input" type="checkbox" value="1" id="flexCheckChecked" checked></td>
-                {% else %}
-                <td><input class="form-check-input" type="checkbox" value="0" id="flexCheckDefault"></td>
-                {% endif %}
-                {% endfor %}
-            </tr>
-            {% endfor %}
-        </table>
-    </div>
-    <div>
-        <a class="btn btn-success btn-sm mb-3" href="/download/{{id}}"><i class="fa-solid fa-download"></i> Download</a>
-    </div>
+            </table>
+        </div>
+        <div>
+            <a class="btn btn-success btn-md mb-3" href="/download/{{id}}"><i class="fa-solid fa-download"></i>
+                Download</a>
+            <button class="btn btn-warning btn-md mb-3" type="submit"><i class="fa-solid fa-save"></i> Save
+                Changes</button>
+        </div>
+    </form>
 </section>
 {% endblock %}
