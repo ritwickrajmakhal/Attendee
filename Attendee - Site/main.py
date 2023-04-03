@@ -226,29 +226,44 @@ def attendance(id):
     # check whether faculty is logged in or not
     if isLoggedIn(['faculty_details']):
         attendanceTableName = f"{id}_attendance"
-        # fetch subject name, class name from classrooms using classId
-        mycursor.execute(f"SELECT `subject_name`, `class` from classrooms where id = {id}")
-        result = mycursor.fetchone()
-        classDetails = {"subject_name":result[0],"class":result[1]}
         # fetch all the dates (column names) from the attendance sheet ({classId}_attendance)
         mycursor.execute(f"SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{attendanceTableName}' ")
         dates = mycursor.fetchall()[3:] # roll no and names are skipped which are there in the first and 2nd column
-        # fetch all the details from attendance sheet ({classId}_attendance)
-    
+        
         mycursor.execute(f"SELECT * FROM `{attendanceTableName}`")
         result = mycursor.fetchall()
         for i in result:
             class_Attended = sum(i[3:])
             mycursor.execute(f"UPDATE `{attendanceTableName}` SET `class_attended` = {class_Attended} WHERE `loginId` = {i[0]}")
             mydb.commit()
-    
+        
+        if request.method == 'POST':
+            mycursor.execute(f"SELECT loginId FROM `{attendanceTableName}`")
+            loginIds = [loginId[0] for loginId in mycursor.fetchall()]
+            for date in dates:
+                for loginId in loginIds:
+                    attendanceStatus = request.form.get(f"{date[0]}#{loginId}")
+                    if attendanceStatus:
+                        mycursor.execute(f"UPDATE `{attendanceTableName}` SET `{date[0]}` = {attendanceStatus} WHERE `loginId` = {loginId}")
+                    else:
+                        mycursor.execute(f"UPDATE `{attendanceTableName}` SET `{date[0]}` = '0' WHERE `loginId` = {loginId}")
+                    mydb.commit()
+            return app.redirect("/attendance/"+(id))
+                    
+        # fetch subject name, class name from classrooms using classId
+        mycursor.execute(f"SELECT `subject_name`, `class` from classrooms where id = {id}")
+        result = mycursor.fetchone()
+        classDetails = {"subject_name":result[0],"class":result[1]}
+        # fetch all the details from attendance sheet ({classId}_attendance)
         mycursor.execute(f"SELECT * FROM `{attendanceTableName}`")
         result = mycursor.fetchall()
         studentDetails = []
         for i in result:
             studentDetails.append({"roll_no":i[0],"name":i[1],"class_attended":i[2],"attendanceDetails":i[3:]})
-        mycursor.close()
+
         mydb.close()            
+        mycursor.close()                    
+                    
         return render_template('attendance.html',params=params,studentDetails=studentDetails,dates=dates,classDetails=classDetails,id=id)
     return app.redirect("/")
 @app.route('/startclass/<string:faculty_id>',methods=['GET','POST'])

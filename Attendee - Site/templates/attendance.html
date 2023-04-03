@@ -19,12 +19,10 @@
                     <td>{{details['roll_no']}}</td>
                     <td>{{details['name']}}</td>
                     <td>{{details['class_attended']}}</td>
-                    {% for attendance in details['attendanceDetails'] %}
-                    {% if attendance == True %}
-                    <td><input class="form-check-input" type="checkbox" value="1" id="flexCheckChecked" checked></td>
-                    {% else %}
-                    <td><input class="form-check-input" type="checkbox" value="0" id="flexCheckDefault"></td>
-                    {% endif %}
+                    {% for i in range(details['attendanceDetails']|length) %}
+                    {% set checked = "checked" if details['attendanceDetails'][i] else "" %}
+                    <td><input class="form-check-input" type="checkbox" value="{{details['attendanceDetails'][i]}}"
+                            onclick="setValue()" name="{{dates[i][0]}}#{{details['roll_no']}}" {{checked}}></td>
                     {% endfor %}
                 </tr>
                 {% endfor %}
@@ -34,8 +32,15 @@
             <a class="btn btn-success btn-md mb-3" href="/download/{{id}}"><i class="fa-solid fa-download"></i>
                 Download</a>
             <button class="btn btn-warning btn-md mb-3" type="submit"><i class="fa-solid fa-save"></i> Save
-                Changes</button>
+                changes</button>
         </div>
     </form>
+    <script>
+        function setValue() {
+            var checkbox = event.target;
+            var value = checkbox.checked ? 1 : 0;
+            checkbox.value = value;
+        }      
+    </script>
 </section>
 {% endblock %}
