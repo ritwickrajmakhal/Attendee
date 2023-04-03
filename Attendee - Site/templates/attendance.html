@@ -7,6 +7,7 @@
             <tr>
                 <th>Roll Number</th>
                 <th>Name</th>
+                <th>Class Attended</th>
                 {% for date in dates %}
                 <th>{{date[0].replace("_","/")[:-9]}} {{date[0].replace("_",".")[11:]}}</th>
                 {% endfor %}
@@ -15,6 +16,7 @@
             <tr>
                 <td>{{details['roll_no']}}</td>
                 <td>{{details['name']}}</td>
+                <td>{{details['class_attended']}}</td>
                 {% for attendance in details['attendanceDetails'] %}
                 {% if attendance == True %}
                 <td><input class="form-check-input" type="checkbox" value="1" id="flexCheckChecked" checked></td>

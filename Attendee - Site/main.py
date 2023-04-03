@@ -264,6 +264,8 @@ def edit(sno):
                     attendanceTableName = f"{mycursor.lastrowid}_Attendance"
                     mycursor.execute(f'CREATE TABLE `{attendanceTableName}` (`loginId` BIGINT NOT NULL UNIQUE, `name` VARCHAR(50) NOT NULL ) SELECT loginId, name FROM {_class}')
                     mydb.commit()
+                    mycursor.execute(f"ALTER TABLE `{attendanceTableName}` ADD `class_attended` INT NOT NULL DEFAULT '0' AFTER `name`")
+                    mydb.commit()
                     mycursor.execute(f"ALTER TABLE `{attendanceTableName}` ORDER BY `loginId` ASC")
                     mydb.commit()
                     return app.redirect("/")
@@ -295,21 +297,32 @@ def deleteClass(sno):
 def attendance(id):
     mydb = connectWithServer(params=params)   
     mycursor = mydb.cursor()
+    # check whether faculty is logged in or not
     if isLoggedIn(['faculty_details']):
         attendanceTableName = f"{id}_attendance"
+        # fetch subject name, class name from classrooms using classId
         mycursor.execute(f"SELECT `subject_name`, `class` from classrooms where id = {id}")
         result = mycursor.fetchone()
         classDetails = {"subject_name":result[0],"class":result[1]}
+        # fetch all the dates (column names) from the attendance sheet ({classId}_attendance)
         mycursor.execute(f"SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{attendanceTableName}' ")
-        dates = mycursor.fetchall()[2:] # roll no and names are skipped which are there in the first and 2nd column
+        dates = mycursor.fetchall()[3:] # roll no and names are skipped which are there in the first and 2nd column
+        # fetch all the details from attendance sheet ({classId}_attendance)
+    
+        mycursor.execute(f"SELECT * FROM `{attendanceTableName}`")
+        result = mycursor.fetchall()
+        for i in result:
+            class_Attended = sum(i[3:])
+            mycursor.execute(f"UPDATE `{attendanceTableName}` SET `class_attended` = {class_Attended} WHERE `loginId` = {i[0]}")
+            mydb.commit()
+    
         mycursor.execute(f"SELECT * FROM `{attendanceTableName}`")
         result = mycursor.fetchall()
         studentDetails = []
+        for i in result:
+            studentDetails.append({"roll_no":i[0],"name":i[1],"class_attended":i[2],"attendanceDetails":i[3:]})
         mycursor.close()
-        mydb.close()
-        if result:
-            for i in result:
-                studentDetails.append({"roll_no":i[0],"name":i[1],"attendanceDetails":i[2:]}) # roll no and names are skipped which are there in the first and 2nd column       
+        mydb.close()            
         return render_template('attendance.html',params=params,studentDetails=studentDetails,dates=dates,classDetails=classDetails,id=id)
     return app.redirect("/")
 @app.route('/startclass/<string:faculty_id>',methods=['GET','POST'])
@@ -340,9 +353,7 @@ def startClass(faculty_id):
             lastColumnName = mycursor.fetchone()[0]
             newColumnName = datetime.now().strftime("%d_%m_%Y_%H_%M_%S")
             mycursor.execute(f"ALTER TABLE `{attendanceTableName}` ADD COLUMN `{newColumnName}` TINYINT DEFAULT 0 AFTER `{lastColumnName}`")
-            mycursor.execute(f"UPDATE `classrooms` SET `status` = '1' WHERE `id` = {classId}")
-            mydb.commit()
-            
+                        
             global cameraObj
             cameraObj = Camera(duration,_class,subject_name)
             t1 = threading.Thread(target=cameraObj.turnOn,args=[classId,newColumnName,])
@@ -356,12 +367,8 @@ def startClass(faculty_id):
 @app.route('/stopclass/<string:classId>',methods=['GET','POST'])
 def stopClass(classId):
     if isLoggedIn(['faculty_details']):
-        mydb = connectWithServer(params=params)   
-        mycursor = mydb.cursor()
         if cameraObj:
             cameraObj.turnOff(classId)
-        mycursor.execute(f"UPDATE `classrooms` SET `status` = '0' WHERE `id` = {classId}")
-        mydb.commit()
     return app.redirect("/")
 @app.route('/download/<string:id>')
 def download_Attendance_sheet(id):

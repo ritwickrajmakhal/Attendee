@@ -49,6 +49,9 @@ class Camera:
         for image in self.known_images:
             img = face_recognition.load_image_file(f"static/images/{self.className}/{image}")
             self.known_face_encodings.append(face_recognition.face_encodings(img)[0])
+        
+        self.mycursor.execute(f"UPDATE `classrooms` SET `status` = '1' WHERE `id` = {classId}")
+        self.mydb.commit()
             
         while self.duration!=0 and self.state:
             ret, frame = self.video_capture.read()
