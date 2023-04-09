@@ -3,13 +3,21 @@
 <section class="container">
     <form action="/attendance/{{id}}" method="post">
         <div class="table-responsive">
+            <style>
+                .table th:first-child,
+                .table td:first-child {
+                    position: sticky;
+                    left: 0;
+                    background-color: white;
+                }
+            </style>
             <table class="table table-bordered caption-top">
                 <caption class="text-center my-2 fw-bold">{{classDetails['subject_name']}} - {{classDetails['class']}}
                 </caption>
                 <tr>
                     <th>Roll Number</th>
                     <th>Name</th>
-                    <th>Class Attended</th>
+                    <th>Class Attended / Total Classes</th>
                     {% for date in dates %}
                     <th>{{date[0].replace("_","/")[:-9]}} {{date[0].replace("_",".")[11:]}}</th>
                     {% endfor %}
@@ -18,7 +26,7 @@
                 <tr>
                     <td>{{details['roll_no']}}</td>
                     <td>{{details['name']}}</td>
-                    <td>{{details['class_attended']}}</td>
+                    <td>{{details['class_attended']}}/{{details['attendanceDetails']|length}}</td>
                     {% for i in range(details['attendanceDetails']|length) %}
                     {% set checked = "checked" if details['attendanceDetails'][i] else "" %}
                     <td><input class="form-check-input" type="checkbox" value="{{details['attendanceDetails'][i]}}"

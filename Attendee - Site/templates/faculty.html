@@ -23,7 +23,7 @@
     {% if classrooms %}
     <h3>Your classes:</h3>
     <div class="container text-center">
-      <div class="row">
+      <div class="row fw-bold">
         <div class="col">
           Subject
         </div>
@@ -34,18 +34,13 @@
           Actions
         </div>
       </div>
-      <hr class="border-2">
-      {% for _class in classrooms %}
+      <hr class="border-1">
+      {% for _class in classrooms|reverse() %}
+      {% set classStatus = '' if _class['status'] else 'd-none' %}
       <div class="row">
-        {% if _class['status'] %}
-        <div class="col text-success">
-          {{_class['subject_name']}}
-        </div>
-        {% else %}
         <div class="col">
-          {{_class['subject_name']}}
+          <p>{{_class['subject_name']}}</p><span class="{{classStatus}} badge rounded-pill text-bg-success">Started</span>
         </div>
-        {% endif %}
         <div class="col">
           {{_class['class']}}
         </div>
@@ -67,7 +62,6 @@
     <p class="text-center">You haven't created any class</p>
     {% endif %}
   </div>
-  <hr>
   <a class="btn btn-primary" href="/logout">Logout</a>
 </main>
 <script>
