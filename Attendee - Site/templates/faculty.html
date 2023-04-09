@@ -11,9 +11,11 @@
   <div>
     <a class="btn btn-success my-2" href="/edit/0"><i class="fa-solid fa-plus"></i> Create a class</a>
     {% if activeClassId %}
-    <a class="btn btn-danger my-2" href="/stopclass/{{activeClassId}}"><i class="fa-solid fa-chalkboard-user"></i> Stop class</a>
+    <a class="btn btn-danger my-2" href="/stopclass/{{activeClassId}}"><i class="fa-solid fa-chalkboard-user"></i> Stop
+      class</a>
     {% else %}
-    <a class="btn btn-warning my-2" href="/startclass/{{details['loginId']}}"><i class="fa-solid fa-chalkboard-user"></i> Start class</a>
+    <a class="btn btn-warning my-2" href="/startclass/{{details['loginId']}}"><i
+        class="fa-solid fa-chalkboard-user"></i> Start class</a>
     {% endif %}
   </div>
   <hr>
@@ -52,7 +54,9 @@
             Attendance</a>
           <a class="btn btn-primary btn-sm" href="/edit/{{_class['id']}}"><i class="fa-solid fa-pen-to-square"></i>
             Edit</a>
-          <a class="btn btn-danger btn-sm" href="/deleteClass/{{_class['id']}}"><i class="fa-solid fa-trash"></i>
+          {% set subject_name = _class['subject_name'] %}
+          {% set classId = _class['id'] %}
+          <a class="btn btn-danger btn-sm" onclick="deleteConfirmation('{{subject_name}}','/deleteClass/{{classId}}')"><i class="fa-solid fa-trash"></i>
             Delete</a>
         </div>
         <hr>
@@ -66,4 +70,11 @@
   <hr>
   <a class="btn btn-primary" href="/logout">Logout</a>
 </main>
+<script>
+  const deleteConfirmation =(subject_name,url)=>{
+    if (confirm("Are you sure to delete the "+subject_name+" class permanently? ")){
+      window.location.href = url;
+    }
+  }
+</script>
 {% endblock %}

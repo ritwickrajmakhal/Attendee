@@ -22,7 +22,7 @@ def connectWithServer(params):
         return mydb
     except:
         print("Turn on your server")
-        return None
+        exit(-1)
 
 def encrypt(password:str):
     import bcrypt
@@ -49,20 +49,9 @@ def getAllTablesFromDB():
     mydb.close()
     return tables
 
-def isLoggedIn(tables:list):
-    mydb = connectWithServer(params=params)   
-    mycursor = mydb.cursor()
+def isLoggedIn():
     if 'loginId' in session:
-        loginId = session.get('loginId')
-        password = session.get('password')
-        for table in tables:
-            mycursor.execute(f"SELECT `password` FROM {table} WHERE loginId = %s",(loginId,))
-            result = mycursor.fetchone()
-            if result:
-                if checkPassword(password.encode("utf-8"),result[0].encode("utf-8")):
-                    return True
-    mydb.close()
-    mycursor.close()
+        return True
     return False
 
 def fetchDetails(userType:str, tables:list, loginId:str, password:str):

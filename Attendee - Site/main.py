@@ -16,35 +16,34 @@ cameraObj = None
 def home():
     mydb = connectWithServer(params=params)   
     mycursor = mydb.cursor()
+    # if already logged in then just fetch details and send it to the user
+    # else check password -> if matched -> store username, password, userType in session -> redirect the page to "/"
     if 'loginId' in session:
         loginId = session.get('loginId')
         loginType = session.get('loginType')
         password = session.get('password')
-        # validate credentials
-        # make a details dictionary
         attendanceDetails = []
         if loginType=='1':
             details = fetchDetails(loginType, getAllTablesFromDB(),loginId,password)
             if details:
                 mycursor.execute(f"SELECT id, subject_name FROM `classrooms` WHERE class = %s",(details['table_name'],))
                 result = mycursor.fetchall()
-                if result:
-                    ids,subjects = [i[0] for i in result],[i[1] for i in result]
-                    for id,subject_name in zip(ids,subjects):
-                        attendanceTableName = f"{id}_attendance"
-                        columnName = datetime.now().strftime("%d_%m_%Y")
-                        mycursor.execute(f"SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{attendanceTableName}' AND COLUMN_NAME LIKE '%{columnName}%'")
-                        dates = [i[0] for i in mycursor.fetchall()]
-                        for date in dates:
-                            mycursor.execute(f"SELECT {date} FROM {attendanceTableName} WHERE loginId = %s",(loginId,))
-                            status = [i for i in mycursor.fetchone()]
-                            attendanceDetails.append({
-                                "subject_name" : subject_name,
-                                "date" : date,
-                                "status" : status[0]
-                            })
-                    mycursor.close()
-                    mydb.close()
+                ids,subjects = [i[0] for i in result],[i[1] for i in result]
+                for id,subject_name in zip(ids,subjects):
+                    attendanceTableName = f"{id}_attendance"
+                    columnName = datetime.now().strftime("%d_%m_%Y")
+                    mycursor.execute(f"SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{attendanceTableName}' AND COLUMN_NAME LIKE '%{columnName}%'")
+                    dates = [i[0] for i in mycursor.fetchall()]
+                    for date in dates:
+                        mycursor.execute(f"SELECT {date} FROM {attendanceTableName} WHERE loginId = %s",(loginId,))
+                        status = [i for i in mycursor.fetchone()]
+                        attendanceDetails.append({
+                            "subject_name" : subject_name,
+                            "date" : date,
+                            "status" : status[0]
+                        })
+                mycursor.close()
+                mydb.close()
                 return render_template('student.html',params=params,details=details,attendanceDetails=attendanceDetails)
             else:
                 return render_template('index.html',params=params,error="Please select the user Type or enter the correct user id or password")
@@ -172,7 +171,7 @@ def contact():
 def edit(sno):
     mydb = connectWithServer(params=params)   
     mycursor = mydb.cursor()
-    if isLoggedIn(['faculty_details']):
+    if isLoggedIn():
         mycursor.execute("SELECT * FROM `classrooms` WHERE id = %s",(sno,))
         result = mycursor.fetchone()
         details = None
@@ -207,7 +206,7 @@ def edit(sno):
 def deleteClass(sno):
     mydb = connectWithServer(params=params)   
     mycursor = mydb.cursor()
-    if isLoggedIn(['faculty_details']):
+    if isLoggedIn():
         mycursor.execute("DELETE FROM `classrooms` WHERE id = %s",(sno,))
         mydb.commit()
         mycursor.execute("SHOW TABLES")
@@ -224,7 +223,7 @@ def attendance(id):
     mydb = connectWithServer(params=params)   
     mycursor = mydb.cursor()
     # check whether faculty is logged in or not
-    if isLoggedIn(['faculty_details']):
+    if isLoggedIn():
         attendanceTableName = f"{id}_attendance"
         # fetch all the dates (column names) from the attendance sheet ({classId}_attendance)
         mycursor.execute(f"SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{attendanceTableName}' ")
@@ -270,7 +269,7 @@ def attendance(id):
 def startClass(faculty_id):
     mydb = connectWithServer(params=params)   
     mycursor = mydb.cursor()
-    if isLoggedIn(['faculty_details']):
+    if isLoggedIn():
         classInfo = []
         mycursor.execute(f"SELECT * FROM classrooms WHERE loginId = '{faculty_id}'")
         for i in mycursor.fetchall():
@@ -307,7 +306,7 @@ def startClass(faculty_id):
     return app.redirect("/")     
 @app.route('/stopclass/<string:classId>',methods=['GET','POST'])
 def stopClass(classId):
-    if isLoggedIn(['faculty_details']):
+    if isLoggedIn():
         if cameraObj:
             cameraObj.turnOff(classId)
     return app.redirect("/")
