@@ -18,6 +18,7 @@
         "insta_url": "https://www.instagram.com/attendee",
         "tw_url": "https://www.twiter.com/attendee",
         "github_url": "https://github.com/ritwickrajmakhal/Automated-attendence-system",
-        "upload_location" : "static\\images"
+        "image_upload_location" : "static\\images",
+        "face_encodings_folder_location": "face_encodings"
     }
 }

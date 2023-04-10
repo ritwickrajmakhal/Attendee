@@ -21,8 +21,7 @@ def connectWithServer(params):
                                     database=productionServer['database'])
         return mydb
     except:
-        print("Turn on your server")
-        exit(-1)
+        print("Check your database connection")
 
 def encrypt(password:str):
     import bcrypt

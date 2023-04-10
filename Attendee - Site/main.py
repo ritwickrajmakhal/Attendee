@@ -4,12 +4,15 @@ from methods import *
 import os
 import pandas as pd
 import io
-from Camera import Camera
+from Camera import Camera, CameraNotAvailableException
 import threading
+import face_recognition
+import numpy as np
 
 app = Flask(__name__)
 app.secret_key = "Atten-dee"
-app.config['UPLOAD_FOLDER'] = params['upload_location']
+app.config['UPLOAD_FOLDER'] = params['image_upload_location']
+app.config['FACE_ENCODINGS_FOLDER'] = params['face_encodings_folder_location']
 cameraObj = None
 
 @app.route('/',methods=['GET','POST'])
@@ -125,7 +128,27 @@ def signUp():
                     os.mkdir(os.path.join(app.config['UPLOAD_FOLDER']+f"/{table_name}"))
                 except:
                     pass
-                f.save(os.path.join(app.config['UPLOAD_FOLDER']+f"/{table_name}",f"{rollNumber}.jpg"))
+                imageFilePath = os.path.join(app.config['UPLOAD_FOLDER']+f"/{table_name}",f"{rollNumber}.jpg")
+                f.save(imageFilePath)
+                
+                img = face_recognition.load_image_file(imageFilePath)
+                # Detect faces in the image
+                face_locations = face_recognition.face_locations(img)
+                face_encodings = face_recognition.face_encodings(img, face_locations)[0]
+
+                if len(face_locations) > 0:
+                    try:
+                        os.mkdir(app.config['FACE_ENCODINGS_FOLDER']+f"/{table_name}")
+                    except:
+                        pass
+                    encoding_path = os.path.join(app.config['FACE_ENCODINGS_FOLDER']+f"/{table_name}",f"{rollNumber}.npy")
+                    np.save(encoding_path, face_encodings)
+                
+                else:
+                    # delete the file
+                    os.remove(imageFilePath)
+                    return render_template('signup.html',params=params,error="Face is not detected in your image, please upload a clear image")
+                
                 mycursor.execute(f"INSERT INTO {table_name} (`loginId`, `name`, `department`, `semester`, `email`, `password`, `image_file`) VALUES (%s, %s, %s, %s, %s, %s, %s)",(rollNumber,fullName,department,semester,email, password,f"{rollNumber}.jpg"))
                 mydb.commit()
                 
@@ -291,14 +314,16 @@ def startClass(faculty_id):
             attendanceTableName = f"{classId}_attendance"
             mycursor.execute(f"SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{attendanceTableName}' ORDER BY ORDINAL_POSITION DESC LIMIT 1")
             lastColumnName = mycursor.fetchone()[0]
-            newColumnName = datetime.now().strftime("%d_%m_%Y_%H_%M_%S")
-            mycursor.execute(f"ALTER TABLE `{attendanceTableName}` ADD COLUMN `{newColumnName}` TINYINT DEFAULT 0 AFTER `{lastColumnName}`")
-                        
-            global cameraObj
-            cameraObj = Camera(duration,_class,subject_name)
-            t1 = threading.Thread(target=cameraObj.turnOn,args=[classId,newColumnName,])
-            t1.start()
-            
+            newColumnName = datetime.now().strftime("%d_%m_%Y_%H_%M_%S")    
+            try:
+                global cameraObj
+                cameraObj = Camera(duration,classId,_class,subject_name)
+                mycursor.execute(f"ALTER TABLE `{attendanceTableName}` ADD COLUMN `{newColumnName}` TINYINT DEFAULT 0 AFTER `{lastColumnName}`")
+                mydb.commit()
+                t1 = threading.Thread(target=cameraObj.turnOn,args=[classId,newColumnName,])
+                t1.start()
+            except CameraNotAvailableException:
+                return render_template('startClassForm.html',params=params, error=f"Already a class is going on in {_class}")
             mycursor.close()
             mydb.close()
             return app.redirect("/")
@@ -307,8 +332,13 @@ def startClass(faculty_id):
 @app.route('/stopclass/<string:classId>',methods=['GET','POST'])
 def stopClass(classId):
     if isLoggedIn():
-        if cameraObj:
+        mydb = connectWithServer(params=params)   
+        mycursor = mydb.cursor()
+        mycursor.execute("SELECT * FROM classrooms WHERE id = %s AND status = %s",(classId,1))
+        if mycursor.fetchone() and cameraObj:
             cameraObj.turnOff(classId)
+        else:
+            return app.redirect("/")
     return app.redirect("/")
 @app.route('/download/<string:id>')
 def download_Attendance_sheet(id):
