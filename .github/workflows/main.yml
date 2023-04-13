@@ -17,4 +17,3 @@ jobs:
     - name: Start App
       run: |
         cd "Attendee - Site"
-        python main.py

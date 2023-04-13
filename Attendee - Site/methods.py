@@ -22,6 +22,7 @@ def connectWithServer(params):
         return mydb
     except:
         print("Check your database connection")
+        exit(-1)
 
 def encrypt(password:str):
     import bcrypt

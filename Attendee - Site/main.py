@@ -134,9 +134,8 @@ def signUp():
                 img = face_recognition.load_image_file(imageFilePath)
                 # Detect faces in the image
                 face_locations = face_recognition.face_locations(img)
-                face_encodings = face_recognition.face_encodings(img, face_locations)[0]
-
                 if len(face_locations) > 0:
+                    face_encodings = face_recognition.face_encodings(img, face_locations)[0]
                     try:
                         os.mkdir(app.config['FACE_ENCODINGS_FOLDER']+f"/{table_name}")
                     except:
@@ -365,6 +364,8 @@ def download_Attendance_sheet(id):
     mycursor.close()
     mydb.close()
     return response
-    
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('page_not_found.html',params=params)
 if __name__ == '__main__':
     app.run(debug=True)
