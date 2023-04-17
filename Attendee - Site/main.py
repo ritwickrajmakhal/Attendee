@@ -296,19 +296,24 @@ def startClass(faculty_id):
         mycursor.execute(f"SELECT * FROM classrooms WHERE loginId = '{faculty_id}'")
         for i in mycursor.fetchall():
             classInfo.append({"id":i[0],"subject_name":i[1],"class":i[2],"loginId":i[3],"status":i[4]})
+        if len(classInfo) == 0:
+            return app.redirect("/")
         if request.method == "POST":
             mycursor.execute(f"SELECT `status` from `classrooms` WHERE loginId = '{faculty_id}'")
             classStatuses = [i[0] for i in mycursor]
             if 1 in classStatuses:
-                return render_template('startClassForm.html',params=params,classInfo=None,error="You have already started a class, stop that class before starting a new class")
+                return render_template('startClassForm.html',params=params,classInfo=classInfo,error="You have already started a class, stop that class before starting a new class")
             subject_name = request.form['subject_name']
+            classId = None
+            _class = None
             
             for info in classInfo:
                 if info['subject_name'] == f"{subject_name}":
                     classId = info['id']
                     _class = info['class']
                     break
-                
+            if not classId and not _class:
+                return render_template('startClassForm.html',params=params,classInfo=classInfo,error=f"{subject_name} is not exist in your subjects list")
             duration = int(request.form['duration'])
             attendanceTableName = f"{classId}_attendance"
             mycursor.execute(f"SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{attendanceTableName}' ORDER BY ORDINAL_POSITION DESC LIMIT 1")
@@ -322,11 +327,11 @@ def startClass(faculty_id):
                 t1 = threading.Thread(target=cameraObj.turnOn,args=[classId,newColumnName,])
                 t1.start()
             except CameraNotAvailableException:
-                return render_template('startClassForm.html',params=params, error=f"Already a class is going on in {_class}")
+                return render_template('startClassForm.html',params=params,classInfo=classInfo, error=f"Already a class is going on in {_class}")
             mycursor.close()
             mydb.close()
             return app.redirect("/")
-        return render_template('startClassForm.html',params=params,classInfo=classInfo,error="You haven't created any class yet.")
+        return render_template('startClassForm.html',params=params,classInfo=classInfo)
     return app.redirect("/")     
 @app.route('/stopclass/<string:classId>',methods=['GET','POST'])
 def stopClass(classId):
@@ -335,7 +340,10 @@ def stopClass(classId):
         mycursor = mydb.cursor()
         mycursor.execute("SELECT * FROM classrooms WHERE id = %s AND status = %s",(classId,1))
         if mycursor.fetchone() and cameraObj:
-            cameraObj.turnOff(classId)
+            try:
+                cameraObj.turnOff(classId)
+            except:
+                pass
     return app.redirect("/")
 @app.route('/download/<string:id>')
 def download_Attendance_sheet(id):
@@ -365,5 +373,18 @@ def download_Attendance_sheet(id):
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('page_not_found.html',params=params)
+
+
+
+
+
+
+
+
+
+
+
+
+
 if __name__ == '__main__':
     app.run(debug=True)

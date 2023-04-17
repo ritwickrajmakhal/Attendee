@@ -79,7 +79,7 @@ class Camera:
         self.turnOff(classId)
     def turnOff(self,classId):
         self.state = False
-        self.video_capture.release()
-        cv2.destroyAllWindows()
         self.mycursor.execute(f"UPDATE `classrooms` SET `status` = '0' WHERE `id` = {classId}")
         self.mydb.commit()
+        self.video_capture.release()
+        cv2.destroyAllWindows()
