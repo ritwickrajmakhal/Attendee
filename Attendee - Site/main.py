@@ -336,8 +336,6 @@ def stopClass(classId):
         mycursor.execute("SELECT * FROM classrooms WHERE id = %s AND status = %s",(classId,1))
         if mycursor.fetchone() and cameraObj:
             cameraObj.turnOff(classId)
-        else:
-            return app.redirect("/")
     return app.redirect("/")
 @app.route('/download/<string:id>')
 def download_Attendance_sheet(id):
