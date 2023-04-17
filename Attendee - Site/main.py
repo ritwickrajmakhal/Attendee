@@ -366,4 +366,4 @@ def download_Attendance_sheet(id):
 def page_not_found(e):
     return render_template('page_not_found.html',params=params)
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=False,host='0.0.0.0')
