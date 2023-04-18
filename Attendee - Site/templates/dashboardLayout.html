@@ -1,0 +1,203 @@
+<!doctype html>
+<html class="no-js" lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Dashboard V.3 | Kiaalap - Kiaalap Admin Template</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- favicon
+		============================================ -->
+    <link rel="shortcut icon" type="image/x-icon" href="{{url_for('static',filename='images/favicon.ico')}}">
+    <!-- Google Fonts
+		============================================ -->
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,700,900" rel="stylesheet">
+    <!-- Bootstrap CSS
+		============================================ -->
+    <link rel="stylesheet" href="{{url_for('static',filename='css/bootstrap.min.css')}}">
+    <!-- Bootstrap CSS
+		============================================ -->
+    <link rel="stylesheet" href="{{url_for('static',filename='css/font-awesome.min.css')}}">
+    <!-- owl.carousel CSS
+		============================================ -->
+    <link rel="stylesheet" href="{{url_for('static',filename='css/owl.carousel.css')}}">
+    <link rel="stylesheet" href="{{url_for('static',filename='css/owl.theme.css')}}">
+    <link rel="stylesheet" href="{{url_for('static',filename='css/owl.transitions.css')}}">
+    <!-- animate CSS
+		============================================ -->
+    <link rel="stylesheet" href="{{url_for('static',filename='css/animate.css')}}">
+    <!-- normalize CSS
+		============================================ -->
+    <link rel="stylesheet" href="{{url_for('static',filename='css/normalize.css')}}">
+    <!-- meanmenu icon CSS
+		============================================ -->
+    <link rel="stylesheet" href="{{url_for('static',filename='css/meanmenu.min.css')}}">
+    <!-- main CSS
+		============================================ -->
+    <link rel="stylesheet" href="{{url_for('static',filename='css/main.css')}}">
+    <!-- educate icon CSS
+		============================================ -->
+    <link rel="stylesheet" href="{{url_for('static',filename='css/educate-custon-icon.css')}}">
+    <!-- morrisjs CSS
+		============================================ -->
+    <link rel="stylesheet" href="{{url_for('static',filename='css/morrisjs/morris.css')}}">
+    <!-- mCustomScrollbar CSS
+		============================================ -->
+    <link rel="stylesheet" href="{{url_for('static',filename='css/scrollbar/jquery.mCustomScrollbar.min.css')}}">
+    <!-- metisMenu CSS
+		============================================ -->
+    <link rel="stylesheet" href="{{url_for('static',filename='css/metisMenu/metisMenu.min.css')}}">
+    <link rel="stylesheet" href="{{url_for('static',filename='css/metisMenu/metisMenu-vertical.css')}}">
+    <!-- calendar CSS
+		============================================ -->
+    <link rel="stylesheet" href="{{url_for('static',filename='css/calendar/fullcalendar.min.css')}}">
+    <link rel="stylesheet" href="{{url_for('static',filename='css/calendar/fullcalendar.print.min.css')}}">
+    <!-- style CSS
+		============================================ -->
+    <link rel="stylesheet" href="{{url_for('static',filename='style.css')}}">
+    <!-- responsive CSS
+		============================================ -->
+    <link rel="stylesheet" href="{{url_for('static',filename='css/responsive.css')}}">
+    <!-- modernizr JS
+		============================================ -->
+    <script src="{{url_for('static',filename='js/vendor/modernizr-2.8.3.min.js')}}"></script>
+</head>
+
+<body>
+    <!--[if lt IE 8]>
+		<p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+	<![endif]-->
+    <!-- Start Left menu area -->
+    <div class="left-sidebar-pro">
+        <nav id="sidebar" class="">
+            <div class="sidebar-header">
+                <a href="/dashboard"><img class="main-logo" src="{{url_for('static',filename='images/logo/logo.png')}}" alt="" /></a>
+                <strong><a href="/dashboard"><img src="{{url_for('static',filename='images/logo/logosn.png')}}" alt="" /></a></strong>
+            </div>
+            <div class="left-custom-menu-adp-wrap comment-scrollbar">
+                <nav class="sidebar-nav left-sidebar-menu-pro">
+                    <ul class="metismenu" id="menu1">
+                        <li>
+                            <a title="Landing Page" href="events.html" aria-expanded="false"><span class="educate-icon educate-event icon-wrap sub-icon-mg" aria-hidden="true"></span> <span class="mini-click-non">Event</span></a>
+                        </li>
+                        <li>
+                            <a class="has-arrow" href="all-professors.html" aria-expanded="false"><span class="educate-icon educate-professor icon-wrap"></span> <span class="mini-click-non">Professors</span></a>
+                            <ul class="submenu-angle" aria-expanded="false">
+                                <li><a title="All Professors" href="all-professors.html"><span class="mini-sub-pro">All Professors</span></a></li>
+                                <li><a title="Add Professor" href="add-professor.html"><span class="mini-sub-pro">Add Professor</span></a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a class="has-arrow" href="all-students.html" aria-expanded="false"><span class="educate-icon educate-student icon-wrap"></span> <span class="mini-click-non">Students</span></a>
+                            <ul class="submenu-angle" aria-expanded="false">
+                                <li><a title="All Students" href="all-students.html"><span class="mini-sub-pro">All Students</span></a></li>
+                                <li><a title="Add Students" href="add-student.html"><span class="mini-sub-pro">Add Student</span></a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a class="has-arrow" href="all-courses.html" aria-expanded="false"><span class="educate-icon educate-course icon-wrap"></span> <span class="mini-click-non">Courses</span></a>
+                            <ul class="submenu-angle" aria-expanded="false">
+                                <li><a title="All Courses" href="all-courses.html"><span class="mini-sub-pro">All Courses</span></a></li>
+                                <li><a title="Add Courses" href="add-course.html"><span class="mini-sub-pro">Add Course</span></a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a class="has-arrow" href="all-courses.html" aria-expanded="false"><span class="educate-icon educate-department icon-wrap"></span> <span class="mini-click-non">Departments</span></a>
+                            <ul class="submenu-angle" aria-expanded="false">
+                                <li><a title="Departments List" href="departments.html"><span class="mini-sub-pro">Departments List</span></a></li>
+                                <li><a title="Add Departments" href="add-department.html"><span class="mini-sub-pro">Add Departments</span></a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a class="has-arrow" href="mailbox.html" aria-expanded="false"><span class="educate-icon educate-message icon-wrap"></span> <span class="mini-click-non">Mailbox</span></a>
+                            <ul class="submenu-angle" aria-expanded="false">
+                                <li><a title="Inbox" href="mailbox.html"><span class="mini-sub-pro">Inbox</span></a></li>
+                                <li><a title="View Mail" href="mailbox-view.html"><span class="mini-sub-pro">View Mail</span></a></li>
+                                <li><a title="Compose Mail" href="mailbox-compose.html"><span class="mini-sub-pro">Compose Mail</span></a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </nav>
+    </div>
+    <!-- End Left menu area -->
+    {% block body %}{% endblock %}
+    
+    <div class="footer-copyright-area">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="footer-copy-right">
+                        <p>Copyright © <a href="/">attendee.com</a> 2018. All rights reserved.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<!-- jquery
+    ============================================ -->
+<script src="{{url_for('static',filename='js/vendor/jquery-1.12.4.min.js')}}"></script>
+<!-- bootstrap JS
+    ============================================ -->
+<script src="{{url_for('static',filename='js/bootstrap.min.js')}}"></script>
+<!-- wow JS
+    ============================================ -->
+<script src="{{url_for('static',filename='js/wow.min.js')}}"></script>
+<!-- price-slider JS
+    ============================================ -->
+<script src="{{url_for('static',filename='js/jquery-price-slider.js')}}"></script>
+<!-- meanmenu JS
+    ============================================ -->
+<script src="{{url_for('static',filename='js/jquery.meanmenu.js')}}"></script>
+<!-- owl.carousel JS
+    ============================================ -->
+<script src="{{url_for('static',filename='js/owl.carousel.min.js')}}"></script>
+<!-- sticky JS
+    ============================================ -->
+<script src="{{url_for('static',filename='js/jquery.sticky.js')}}"></script>
+<!-- scrollUp JS
+    ============================================ -->
+<script src="{{url_for('static',filename='js/jquery.scrollUp.min.js')}}"></script>
+<!-- counterup JS
+    ============================================ -->
+<script src="{{url_for('static',filename='js/counterup/jquery.counterup.min.js')}}"></script>
+<script src="{{url_for('static',filename='js/counterup/waypoints.min.js')}}"></script>
+<script src="{{url_for('static',filename='js/counterup/counterup-active.js')}}"></script>
+<!-- mCustomScrollbar JS
+    ============================================ -->
+<script src="{{url_for('static',filename='js/scrollbar/jquery.mCustomScrollbar.concat.min.js')}}"></script>
+<script src="{{url_for('static',filename='js/scrollbar/mCustomScrollbar-active.js')}}"></script>
+<!-- metisMenu JS
+    ============================================ -->
+<script src="{{url_for('static',filename='js/metisMenu/metisMenu.min.js')}}"></script>
+<script src="{{url_for('static',filename='js/metisMenu/metisMenu-active.js')}}"></script>
+<!-- morrisjs JS
+    ============================================ -->
+<script src="{{url_for('static',filename='js/morrisjs/raphael-min.js')}}"></script>
+<script src="{{url_for('static',filename='js/morrisjs/morris.js')}}"></script>
+<script src="{{url_for('static',filename='js/morrisjs/home3-active.js')}}"></script>
+<!-- morrisjs JS
+    ============================================ -->
+<script src="{{url_for('static',filename='js/sparkline/jquery.sparkline.min.js')}}"></script>
+<script src="{{url_for('static',filename='js/sparkline/jquery.charts-sparkline.js')}}"></script>
+<script src="{{url_for('static',filename='js/sparkline/sparkline-active.js')}}"></script>
+<!-- calendar JS
+    ============================================ -->
+<script src="{{url_for('static',filename='js/calendar/moment.min.js')}}"></script>
+<script src="{{url_for('static',filename='js/calendar/fullcalendar.min.js')}}"></script>
+<script src="{{url_for('static',filename='js/calendar/fullcalendar-active.js')}}"></script>
+<!-- plugins JS
+    ============================================ -->
+<script src="{{url_for('static',filename='js/plugins.js')}}"></script>
+<!-- main JS
+    ============================================ -->
+<script src="{{url_for('static',filename='js/main.js')}}"></script>
+<!-- tawk chat JS
+    ============================================ -->
+<script src="{{url_for('static',filename='js/tawk-chat.js')}}"></script>
+</body>
+
+</html>

@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, session, make_response
+from flask import Flask, render_template, request, session, make_response, jsonify
 from datetime import datetime
 from methods import *
 import os
@@ -28,63 +28,64 @@ def home():
         attendanceDetails = []
         if loginType=='1':
             details = fetchDetails(loginType, getAllTablesFromDB(),loginId,password)
-            if details:
-                mycursor.execute(f"SELECT id, subject_name FROM `classrooms` WHERE class = %s",(details['table_name'],))
-                result = mycursor.fetchall()
-                ids,subjects = [i[0] for i in result],[i[1] for i in result]
-                for id,subject_name in zip(ids,subjects):
-                    attendanceTableName = f"{id}_attendance"
-                    columnName = datetime.now().strftime("%d_%m_%Y")
-                    mycursor.execute(f"SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{attendanceTableName}' AND COLUMN_NAME LIKE '%{columnName}%'")
-                    dates = [i[0] for i in mycursor.fetchall()]
-                    for date in dates:
-                        mycursor.execute(f"SELECT {date} FROM {attendanceTableName} WHERE loginId = %s",(loginId,))
-                        status = [i for i in mycursor.fetchone()]
-                        attendanceDetails.append({
-                            "subject_name" : subject_name,
-                            "date" : date,
-                            "status" : status[0]
-                        })
-                mycursor.close()
-                mydb.close()
-                return render_template('student.html',params=params,details=details,attendanceDetails=attendanceDetails)
-            else:
-                return render_template('index.html',params=params,error="Please select the user Type or enter the correct user id or password")
         elif loginType=='2':
-            details = fetchDetails(loginType,['faculty_details'],loginId,password)
-            if details:
-                classrooms = fetchClassrooms(loginId)
-                activeClassId = None
-                if classrooms:
-                    for _class in classrooms:
-                        if _class['status'] == 1:
-                            activeClassId = _class['id']
-                            break
-                return render_template('faculty.html',params=params,details=details,classrooms=classrooms,activeClassId=activeClassId)
-            else:
-                return render_template('index.html',params=params,error="Please select the user Type or enter the correct user id or password")
+            details = fetchDetails(loginType, ['faculty_details'],loginId,password)
+        if loginType=='1' and details:
+            mycursor.execute(f"SELECT id, subject_name FROM `classrooms` WHERE class = %s",(details['table_name'],))
+            result = mycursor.fetchall()
+            ids,subjects = [i[0] for i in result],[i[1] for i in result]
+            for id,subject_name in zip(ids,subjects):
+                attendanceTableName = f"{id}_attendance"
+                columnName = datetime.now().strftime("%d_%m_%Y")
+                mycursor.execute(f"SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{attendanceTableName}' AND COLUMN_NAME LIKE '%{columnName}%'")
+                dates = [i[0] for i in mycursor.fetchall()]
+                for date in dates:
+                    mycursor.execute(f"SELECT {date} FROM {attendanceTableName} WHERE loginId = %s",(loginId,))
+                    status = [i for i in mycursor.fetchone()]
+                    attendanceDetails.append({
+                        "subject_name" : subject_name,
+                        "date" : date,
+                        "status" : status[0]
+                    })
+            mycursor.close()
+            mydb.close()
+            return render_template('student.html',params=params,details=details,attendanceDetails=attendanceDetails)
+            
+        elif loginType=='2' and details:
+            classrooms = fetchClassrooms(loginId)
+            activeClassId = None
+            if classrooms:
+                for _class in classrooms:
+                    if _class['status'] == 1:
+                        activeClassId = _class['id']
+                        break
+            return render_template('faculty.html',params=params,details=details,classrooms=classrooms,activeClassId=activeClassId)
+        elif loginType=='3' and isLoggedIn():
+            # get all the details and give it to the admin
+            return render_template("dashboard.html")
+        else:
+            return render_template('index.html',params=params,error="Please select the user Type or enter the correct user id or password")
     elif request.method == 'POST':
         loginId = request.form['loginId']
         password = request.form['password']
         loginType = request.form['loginType']
-        if loginType=='1':
-            details = fetchDetails(loginType, getAllTablesFromDB(),loginId,password)
-            if details:
-                session['loginType'] = loginType
-                session['loginId'] = loginId
-                session['password'] = password
-                return app.redirect("/")
-            else:
-                return render_template('index.html',params=params,error="Please select the user Type or enter the correct user id or password")
-        elif loginType=='2':
-            details = fetchDetails(loginType, ['faculty_details'],loginId,password)
-            if details:
-                session['loginType'] = loginType
-                session['loginId'] = loginId
-                session['password'] = password
-                return app.redirect("/")
-            else:
-                return render_template('index.html',params=params,error="Please select the user Type or enter the correct user id or password")
+        if loginType=='1' and fetchDetails(loginType, getAllTablesFromDB(),loginId,password):
+            session['loginType'] = loginType
+            session['loginId'] = loginId
+            session['password'] = password
+            return app.redirect("/")
+        elif loginType=='2' and fetchDetails(loginType, ['faculty_details'],loginId,password):
+            session['loginType'] = loginType
+            session['loginId'] = loginId
+            session['password'] = password
+            return app.redirect("/")
+        elif loginType == '3' and {'user':loginId,'password':password} in params['admins']:
+            session['loginType'] = loginType
+            session['loginId'] = loginId
+            session['password'] = password
+            return app.redirect("/")
+        else:
+            return render_template('index.html',params=params,error="Please select the user Type or enter the correct user id or password")
     return render_template('index.html',params=params)
 @app.route('/about')
 def about():

@@ -39,7 +39,7 @@
       {% set classStatus = '' if _class['status'] else 'd-none' %}
       <div class="row">
         <div class="col">
-          <p>{{_class['subject_name']}}</p><span class="{{classStatus}} badge rounded-pill text-bg-success">Started</span>
+          <p><span class="{{classStatus}} spinner-grow spinner-grow-sm text-success" role="status" aria-hidden="true"></span> {{_class['subject_name']}}</p>
         </div>
         <div class="col">
           {{_class['class']}}

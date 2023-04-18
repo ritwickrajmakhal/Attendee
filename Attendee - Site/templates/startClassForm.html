@@ -1,12 +1,12 @@
 {% extends "layout.html" %}
 {% block body %}
 </section>
-{% if not classInfo%}
-<div class="alert alert-danger text-center" role="alert">
-    <h4 class="alert-heading">{{error}}</h4>
-    <a class="btn btn-danger" href="/">Go Back</a>
-  </div>
-{% else %}
+{% if error %}
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <i class="fa-solid fa-triangle-exclamation"></i> {{error}}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{% endif %}
 <div class="container py-5 h-100">
     <div class="row d-flex justify-content-center align-items-center h-100">
         <div class="col-12 col-md-8 col-lg-6 col-xl-5">
@@ -15,23 +15,36 @@
                     <form action="/startclass/{{classInfo[0]['loginId']}}" method="post">
                         <h3 class="mb-5">Select your subject</h3>
                         <div class="input-group mb-3">
-                            <select class="form-select" name='subject_name' aria-label="Default select example" required>
+                            <select class="form-select" name='subject_name' id="subjects"
+                                aria-label="Default select example" required>
                                 <option selected>Select a Subject</option>
                                 {% for info in classInfo %}
-                                    <option value="{{info['subject_name']}}">{{info['subject_name']}}</option>
+                                <option value="{{info['subject_name']}}">{{info['subject_name']}}</option>
                                 {% endfor %}
                             </select>
                         </div>
                         <div class="input-group mb-3">
-                            <input type="number" name="duration" class="form-control" placeholder="Duration of the class (Hours)" id="">
+                            <input type="number" name="duration" id="duration" class="form-control"
+                                placeholder="Duration of the class (Hours)" required>
                         </div>
-                        <button class="btn btn-primary btn-md btn-block" type="submit">Start</button>
+                        <button id="startBtn" class="btn btn-primary btn-md btn-block" type="submit">Start</button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
 </div>
-{% endif %}
 </section>
+<script>
+    const startBtn = document.getElementById("startBtn");
+
+    console.log(subjects.value, duration.value)
+    startBtn.addEventListener("click", () => {
+        const subjects = document.getElementById("subjects");
+        const duration = document.getElementById("duration");
+        if (subjects.value != 'Select a Subject' && duration.value != 0) {
+            startBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Starting...';
+        }
+    });
+</script>
 {% endblock %}
