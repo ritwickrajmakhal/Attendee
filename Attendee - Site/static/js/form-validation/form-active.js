@@ -5,11 +5,11 @@
 		{					
 			rules:
 			{	
-				firstname:
+				fullname:
 				{
 					required: true
 				},
-				lastname:
+				image_file:
 				{
 					required: true
 				},
@@ -21,100 +21,72 @@
 				{
 					required: true
 				},
-				postcode:
-				{
-					required: true
-				},
-				imageico:
-				{
-					required: true
-				},
 				mobileno:
 				{
+					minlength: 10,
+					maxlength: 10,
 					required: true
 				},
-				description:
-				{
-					required: true
-				},
-				gender:
-				{
-					required: true
-				},
-				country:
-				{
-					required: true
-				},
-				state:
-				{
-					required: true
-				},
-				city:
-				{
-					required: true
-				},
-				website:
+				rollnumber:
 				{
 					required: true
 				},
 				finish:
 				{
 					required: true
+				},
+				email:
+				{
+					required: true,
+					email: true
+				},
+				password:
+				{
+					required: true,
+					minlength: 3,
+					maxlength: 20
+				},
+				confarmpassword:
+				{
+					required: true,
+					minlength: 3,
+					maxlength: 20
 				}
 			},
 			messages:
 			{	
-				firstname:
+				fullname:
 				{
-					required: 'Please enter first name'
+					required: 'Please enter full name'
 				},
-				lastname:
+				image_file:
 				{
-					required: 'Please enter last name'
+					required: 'Please upload an image'
 				},
-				address:
+				rollnumber:
 				{
-					required: 'Please enter your address'
+					required: 'Please enter the roll number'
 				},
 				department:
 				{
 					required: 'Please enter department'
 				},
-				postcode:
-				{
-					required: 'Please enter postcode'
-				},
-				imageico:
-				{
-					required: 'Please upload image'
-				},
 				mobileno:
 				{
 					required: 'Please enter mobile number'
 				},
-				description:
+				email:
 				{
-					required: 'Please enter description'
+					required: 'Please enter your email address',
+					email: 'Please enter a VALID email address'
 				},
-				gender:
+				password:
 				{
-					required: 'Please select gender'
+					required: 'Please enter your password'
 				},
-				country:
+				confarmpassword:
 				{
-					required: 'Please select country'
-				},
-				state:
-				{
-					required: 'Please select state'
-				},
-				city:
-				{
-					required: 'Please select city'
-				},
-				website:
-				{
-					required: 'Please enter website url'
+					required: 'Please enter your confarm password'
 				},
 				finish:
 				{
@@ -128,62 +100,6 @@
 			}
 		});
 		
- 
- // Validation for order form
-		$("#acount-infor").validate(
-		{					
-			rules:
-			{	
-				email:
-				{
-					required: true,
-					email: true
-				},
-				phoneno:
-				{
-					required: true
-				},
-				password:
-				{
-					required: true,
-					minlength: 3,
-					maxlength: 20
-				},
-				confarmpassword:
-				{
-					required: true,
-					minlength: 3,
-					maxlength: 20
-				}
-			},
-			messages:
-			{	
-			
-				email:
-				{
-					required: 'Please enter your email address',
-					email: 'Please enter a VALID email address'
-				},
-				phoneno:
-				{
-					required: 'Please enter mobile number'
-				},
-				password:
-				{
-					required: 'Please enter your password'
-				},
-				confarmpassword:
-				{
-					required: 'Please enter your confarm password'
-				}
-				
-			},					
-			
-			errorPlacement: function(error, element)
-			{
-				error.insertAfter(element.parent());
-			}
-		});
  
  // Validation for order form
 		$(".addcourse").validate(
@@ -215,6 +131,10 @@
 					required: true
 				},
 				description:
+				{
+					required: true
+				},
+				semester:
 				{
 					required: true
 				},
@@ -253,6 +173,10 @@
 				coursename:
 				{
 					required: 'Please enter course name'
+				},
+				semester:
+				{
+					required: 'Please enter semester'
 				},
 				finish:
 				{
@@ -477,6 +401,10 @@
 				status:
 				{
 					required: true
+				},
+				noofsemester:
+				{
+					required: true
 				}
 			},
 			messages:
@@ -504,6 +432,10 @@
 				status:
 				{
 					required: 'Please enter status'
+				},
+				noofsemester:
+				{
+					required: 'Please enter number of semesters'
 				}
 			},					
 			

@@ -5,3 +5,4 @@ cmake
 face_recognition
 numpy
 mysql-connector-python
+twilio

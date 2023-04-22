@@ -1,0 +1,50 @@
+{% extends "dashboardLayout.html" %}
+{% block body %}
+<div class="product-status mg-b-15">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                <div class="product-status-wrap drp-lst">
+                    <h4>Notifications</h4>
+                    <div class="asset-inner">
+                        <table class="table table-hover">
+                            {% for notification in all_notifications|reverse %}
+                            {% set status = notification['status'] %}
+                            <tr>
+                                <td>
+                                    {% if status == 'success' %}
+                                    <i style="color:green;" class="fa-solid fa-circle-check fa-2xl"></i>
+                                    {% elif status == 'warning' %}
+                                    <i style="color:orange;" class="fa-solid fa-triangle-exclamation fa-2xl"></i>
+                                    {% elif status == 'error' %}
+                                    <i style="color:red;" class="fa-solid fa-circle-xmark fa-2xl"></i>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <h4>{{notification['name']}}</h4>
+                                    <p>{{notification['message']}}</p>
+                                </td>
+                                <td>
+                                    <span class="notification-date">{{notification['date']}}</span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </table>
+                    </div>
+                    <div class="custom-pagination">
+                        <nav aria-label="Page navigation example">
+                            <ul class="pagination">
+                                <li class="page-item"><a class="page-link" href="#">Previous</a></li>
+                                <li class="page-item"><a class="page-link" href="#">1</a></li>
+                                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                <li class="page-item"><a class="page-link" href="#">Next</a></li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

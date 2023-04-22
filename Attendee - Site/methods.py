@@ -2,6 +2,9 @@ import mysql.connector
 import json
 from datetime import datetime
 from flask import session
+import random
+import string
+
 with open('config.json','r') as f:
     params = json.loads(f.read())['params']
 
@@ -101,3 +104,45 @@ def fetchClassrooms(loginId):
     mydb.close()
     mycursor.close()
     return classrooms
+
+def generate_password():
+    # define possible characters for password
+    letters = string.ascii_letters
+    numbers = string.digits
+    symbols = string.punctuation
+
+    # create password with 8 characters
+    password = ''.join(random.choice(letters + numbers + symbols) for i in range(8))
+    return password
+
+def getNotifications():
+    mydb = connectWithServer(params=params)   
+    mycursor = mydb.cursor()
+    mycursor.execute("SELECT * FROM notifications")
+    notifications = [{'name':i[1],
+                      'status':i[2],
+                      'message':i[3],
+                      'date':i[4]
+                      }
+                     for i in mycursor.fetchall()]
+    return notifications
+
+def createNotification(status,msg,name):
+    mydb = connectWithServer(params=params)   
+    mycursor = mydb.cursor()
+    notification={'status':status,'msg':msg}
+    mycursor.execute("INSERT INTO `notifications` (`name`,`status`, `message`,`date`) VALUES (%s, %s, %s, %s)",(f'{name}',status,msg,datetime.now().strftime("%d %b")))
+    mydb.commit()
+    return notification
+
+def send_sms(to_, msg):
+    from twilio.rest import Client
+    account_sid = params['APIs'][1]["account_sid"]
+    auth_token = params['APIs'][1]["auth_token"]
+    client = Client(account_sid, auth_token)
+    client.messages.create(
+        body=msg,
+        to=to_,
+        from_='+16074146233'
+    )
+    return 'SMS sent!'

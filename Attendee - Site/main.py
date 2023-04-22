@@ -1,13 +1,17 @@
-from flask import Flask, render_template, request, session, make_response, jsonify
+from flask import Flask, render_template, request, session, make_response
+import requests
+from werkzeug.utils import secure_filename
 from datetime import datetime
 from methods import *
 import os
 import pandas as pd
 import io
+from PIL import Image
 from Camera import Camera, CameraNotAvailableException
 import threading
 import face_recognition
 import numpy as np
+import json
 
 app = Flask(__name__)
 app.secret_key = "Atten-dee"
@@ -15,6 +19,9 @@ app.config['UPLOAD_FOLDER'] = params['image_upload_location']
 app.config['FACE_ENCODINGS_FOLDER'] = params['face_encodings_folder_location']
 cameraObj = None
 
+@app.context_processor
+def inject_user():
+    return dict(notifications=getNotifications()[-5:])
 @app.route('/',methods=['GET','POST'])
 def home():
     mydb = connectWithServer(params=params)   
@@ -94,85 +101,6 @@ def about():
 def logout():
     session.clear()
     return app.redirect("/")
-@app.route('/signup',methods=['GET','POST'])
-def signUp():
-    mydb = connectWithServer(params=params)   
-    mycursor = mydb.cursor()
-    if request.method == "POST":
-        fullName = request.form['firstName'] +" "+ request.form['lastName']
-        email = request.form['email']
-        password = encrypt(request.form['password'])
-        confirm_password = request.form['confirm_password']
-        userType = request.form['userType']
-        if checkPassword(confirm_password.encode("utf-8"),password) and userType == '1':
-            department = request.form['department']
-            semester = request.form['semester']
-            rollNumber = request.form['rollNumber']
-            table_name = f"{department}_{semester}_{datetime.now().year}"
-            try:
-                sql = f"CREATE TABLE {table_name} (`loginId` BIGINT NOT NULL , `name` TEXT NOT NULL , `department` VARCHAR(10) NOT NULL , `semester` VARCHAR(10) NOT NULL , `email` VARCHAR(50) NOT NULL , `password` VARCHAR(250) NOT NULL , `image_file` VARCHAR(100) NOT NULL )"
-                mycursor.execute(sql)
-                mydb.commit()
-            except:
-                pass
-            # Check whether roll no exists in a table or not
-            tables = getAllTablesFromDB()
-            for table in tables:
-                mycursor.execute(f"SELECT * FROM {table} WHERE loginId = %s",(rollNumber,))
-                result = mycursor.fetchone()
-                if result:
-                    return render_template('thanks-card.html',params=params,message="You've already registered")
-                
-            f = request.files['image_file']
-            if f.content_type == 'image/jpeg':
-                try:
-                    os.mkdir(os.path.join(app.config['UPLOAD_FOLDER']+f"/{table_name}"))
-                except:
-                    pass
-                imageFilePath = os.path.join(app.config['UPLOAD_FOLDER']+f"/{table_name}",f"{rollNumber}.jpg")
-                f.save(imageFilePath)
-                
-                img = face_recognition.load_image_file(imageFilePath)
-                # Detect faces in the image
-                face_locations = face_recognition.face_locations(img)
-                if len(face_locations) > 0:
-                    face_encodings = face_recognition.face_encodings(img, face_locations)[0]
-                    try:
-                        os.mkdir(app.config['FACE_ENCODINGS_FOLDER']+f"/{table_name}")
-                    except:
-                        pass
-                    encoding_path = os.path.join(app.config['FACE_ENCODINGS_FOLDER']+f"/{table_name}",f"{rollNumber}.npy")
-                    np.save(encoding_path, face_encodings)
-                
-                else:
-                    # delete the file
-                    os.remove(imageFilePath)
-                    return render_template('signup.html',params=params,error="Face is not detected in your image, please upload a clear image")
-                
-                mycursor.execute(f"INSERT INTO {table_name} (`loginId`, `name`, `department`, `semester`, `email`, `password`, `image_file`) VALUES (%s, %s, %s, %s, %s, %s, %s)",(rollNumber,fullName,department,semester,email, password,f"{rollNumber}.jpg"))
-                mydb.commit()
-                
-                # check whether any attendance sheet created in classrooms for his class if yes the add his name to those attendance sheets
-                mycursor.execute(f"SELECT id FROM classrooms WHERE class = %s",(table_name,))
-                for id in mycursor.fetchall():
-                    mycursor.execute(f"INSERT INTO `{id[0]}_attendance` (`loginId`, `name`) VALUES (%s, %s)",(rollNumber,fullName))
-                    mydb.commit()
-                return render_template('thanks-card.html',params=params,message="You've registered successfully")
-            else:
-                return render_template('signup.html',params=params,error="Please upload your image in jpeg format")
-            
-        elif userType == '2' and checkPassword(confirm_password.encode("utf-8"),password):
-            mycursor.execute("SELECT * FROM `faculty_details` WHERE loginId = %s",(email,))
-            result = mycursor.fetchone()
-            if result:
-                return render_template('thanks-card.html',params=params,message="You've already registered")
-            else:
-                mycursor.execute(f"INSERT INTO `faculty_details` (`name`, `loginId`, `password`) VALUES (%s, %s, %s)",(fullName,email, password))
-                mydb.commit()
-                return render_template('thanks-card.html',params=params,message="You've registered successfully")
-        else:
-            return render_template('signup.html',params=params,error="Please select your role")
-    return render_template('signup.html',params=params)
 @app.route('/contact',methods=['GET','POST'])
 def contact():
     mydb = connectWithServer(params=params)   
@@ -374,18 +302,204 @@ def download_Attendance_sheet(id):
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('page_not_found.html',params=params)
+@app.route("/events")
+def events():
+    if isLoggedIn():
+        mydb = connectWithServer(params=params)   
+        mycursor = mydb.cursor()
+        return render_template("events.html")
+    else:
+        return app.redirect("/")
+@app.route("/all-professors")
+def all_professors():
+    if isLoggedIn():
+        mydb = connectWithServer(params=params)   
+        mycursor = mydb.cursor()
+        mycursor.execute("SELECT * FROM `faculty_details`")
+        professors = [{'id':i[0],
+                       'name':i[1],
+                       'email':i[2],
+                       'department':i[4],
+                       'mobileno':i[5],
+                       "image_file":i[6]
+                       }
+                      for i in mycursor.fetchall()
+                      ]
+        return render_template("all-professors.html",professors=professors)
+    else:
+        return app.redirect("/")
+@app.route("/add-professor",methods=['GET','POST'])
+def add_professor():
+    if isLoggedIn():
+        mydb = connectWithServer(params=params)   
+        mycursor = mydb.cursor()
+        if request.method == 'POST':
+            fullname = request.form['fullname']
+            department = request.form['department']
+            image_file = request.files['image_file']
+            email = request.form['email']
+            mobileno = request.form['mobileno']
+            password = generate_password()
+            secured_filename = secure_filename(image_file.filename)[:-4]
+            if image_file.content_type == 'image/jpeg':
+                imageFilePath = os.path.join(app.config['UPLOAD_FOLDER']+"/faculty_details",f"{secured_filename}.jpg")
+                image_file.save(imageFilePath)
+                img = face_recognition.load_image_file(imageFilePath)
+                # Detect faces in the image
+                face_locations = face_recognition.face_locations(img)
+                if len(face_locations) > 0:
+                    face_encodings = face_recognition.face_encodings(img, face_locations)[0]
+                    encoding_path = os.path.join(app.config['FACE_ENCODINGS_FOLDER']+"/faculty_details",f"{secured_filename}.npy")
+                    np.save(encoding_path, face_encodings)
+                else:
+                    # delete the image file
+                    os.remove(imageFilePath)
+                    notification = createNotification('error',f"Face is not detected in {fullname}'s image.","Registration Failed")
+                    return render_template('add-professor.html',notification=notification)
+                image = Image.open(imageFilePath)
+                resized_image = image.resize((76,76))
+                resized_image.save(imageFilePath)
+                mycursor.execute("INSERT INTO `faculty_details` (`name`, `email`, `password`, `department`, `mobileno`,`image_file`) VALUES (%s, %s, %s, %s, %s, %s)",(fullname,email,encrypt(password),department,mobileno,f"{secured_filename}.jpg"))
+                mydb.commit()
+                notification = createNotification('success',f"{fullname} registered successfully",'Registration Successful')
+                msg = f''''Hello {fullname}
+                            You've registered successfully in attendee
+                            here is credentials to login,
+                            username : {email}
+                            password : {password}
+                            Do not share your credentials to others
+                            '''
+                send_sms(mobileno,msg)
+                return render_template('add-professor.html',notification=notification)
 
+        mycursor.execute("SELECT `name` FROM `departments`")
+        departments = [{"name":i[0]} for i in mycursor.fetchall()]
+        return render_template("add-professor.html",departments=departments)
+    else:
+        return app.redirect("/")
+@app.route("/all-students")
+def all_students():
+    if isLoggedIn():
+        mydb = connectWithServer(params=params)   
+        mycursor = mydb.cursor()
+        return render_template("all-students.html")
+    else:
+        return app.redirect("/")
+@app.route("/add-student",methods=['GET','POST'])
+def add_students():
+    if isLoggedIn():
+        mydb = connectWithServer(params=params)   
+        mycursor = mydb.cursor()
+        mycursor.execute("SELECT `name` FROM `departments`")
+        departments = [{"name":i[0]} for i in mycursor.fetchall()]
+        mycursor.execute("SELECT `no_of_semesters` FROM `departments`")
+        semesters = [i[0] for i in mycursor.fetchall()]
+        return render_template("add-student.html",departments=departments,semesters=semesters)
+    else:
+        return app.redirect("/")
+@app.route("/all-courses")
+def all_courses():
+    if isLoggedIn():
+        mydb = connectWithServer(params=params)   
+        mycursor = mydb.cursor()
+        mycursor.execute("SELECT * FROM courses")
+        courses = [{'id':i[0],
+                    'name':i[1],
+                    'department':i[2],
+                    'semester':i[3],
+                    'professors':json.loads(i[4]),
+                    'year':i[5],
+                    'image_file':i[6]
+                    }
+                   for i in mycursor.fetchall()]
+        return render_template("all-courses.html",courses=courses)
+    else:
+        return app.redirect("/")
+@app.route("/add-course",methods=['GET','POST'])
+def add_course():
+    if isLoggedIn():
+        mydb = connectWithServer(params=params)   
+        mycursor = mydb.cursor()
+        mycursor.execute("SELECT `name` FROM `departments`")
+        departments = [{"name":i[0]} for i in mycursor.fetchall()]
+        mycursor.execute("SELECT `no_of_semesters` FROM `departments`")
+        semesters = [i[0] for i in mycursor.fetchall()]
+        mycursor.execute("SELECT name FROM `faculty_details`")
+        professors = [i[0] for i in mycursor.fetchall()]
+        if request.method == 'POST':
+            name = request.form['coursename']
+            department = request.form['department']
+            semester = request.form['semester']
+            professors = json.dumps(request.form.getlist('professor'))
+            year = request.form['year']
+            # Set up the API request parameters
+            page = random.randint(1, 10)  # Randomly select a page number between 1 and 10
+            apiParams = {
+                "query": f"{name}-course",
+                "client_id": params["APIs"][0]["Access_Key"],
+                "page": page,
+                "per_page": 1
+            }
+            # Make the API request and parse the JSON response
+            response = requests.get("https://api.unsplash.com/search/photos", params=apiParams)
+            if response.status_code == 200:
+                response_json = json.loads(response.text)
+                # Get the image URL from the response
+                results = response_json["results"]
+                photo_url = results[0]["urls"]["regular"]+f'?w={509}&h={358}'
+                mycursor.execute("INSERT INTO `courses` (`name`, `department`, `semester`, `professors`, `year`, `image_file`) VALUES (%s, %s, %s, %s, %s, %s)",(name,department,semester,professors,year,photo_url))
+                mydb.commit()
+                notification = createNotification('success',f'{name} created successfully', 'New Course Added')
+                return render_template("add-course.html",departments=departments,semesters=semesters,professors=professors,notification=notification)
+            else:
+                notification = createNotification('error',f'{name} creation failed', 'API Error')
+                return render_template("add-course.html",departments=departments,semesters=semesters,professors=professors,notification=notification)
 
-
-
-
-
-
-
-
-
-
-
+        return render_template("add-course.html",departments=departments,semesters=semesters,professors=professors)
+    else:
+        return app.redirect("/")
+@app.route("/all-departments")
+def all_departments():
+    if isLoggedIn():
+        mydb = connectWithServer(params=params)   
+        mycursor = mydb.cursor()
+        mycursor.execute("SELECT * FROM `departments`")
+        departments = [{"id": i[0],
+                        "name":i[1],
+                        "hod_name":i[2],
+                        "hod_email":i[3],
+                        "hod_mobile":i[4],
+                        "no_of_semester":i[5],
+                        "status":i[6]
+                        }
+                        for i in mycursor.fetchall()
+                       ]
+        return render_template("all-departments.html",departments=departments)
+    else:
+        return app.redirect("/")
+@app.route("/add-department",methods=['GET','POST'])
+def add_department():
+    if isLoggedIn():
+        mydb = connectWithServer(params=params)   
+        mycursor = mydb.cursor()
+        if request.method == 'POST':
+            name = request.form['name']
+            noofsemester = request.form['noofsemester']
+            headofdepartment = request.form['headofdepartment']
+            phone = request.form['phone']
+            email = request.form['email']
+            mycursor.execute("INSERT INTO `departments` (`name`, `hod_name`, `hod_email`, `hod_mobile`, `no_of_semesters`) VALUES (%s, %s, %s, %s, %s)",(name,headofdepartment,email,phone,noofsemester))
+            mydb.commit()
+            return render_template("add-department.html",notification={'status':'success','msg':f'{name} department added successfully'})
+        return render_template("add-department.html")
+    else:
+        return app.redirect("/")
+@app.route("/all-notifications")
+def all_notifications():
+    if isLoggedIn():
+        return render_template('all-notifications.html',all_notifications=getNotifications())
+    else:
+        return app.redirect("/")
 
 if __name__ == '__main__':
     app.run(debug=True)

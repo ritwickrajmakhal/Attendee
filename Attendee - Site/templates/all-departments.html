@@ -1,0 +1,62 @@
+{% extends "dashboardLayout.html" %}
+{% block body %}
+        <div class="product-status mg-b-15">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                        <div class="product-status-wrap drp-lst">
+                            <h4>Departments List</h4>
+                            <div class="add-product">
+                                <a href="/add-department">Add Departments</a>
+                            </div>
+                            <div class="asset-inner">
+                                <table>
+                                    <tr>
+                                        <th>No</th>
+                                        <th>Name of Dept.</th>
+                                        <th>Status</th>
+                                        <th>Head</th>
+                                        <th>Email</th>
+                                        <th>Phone</th>
+                                        <th>No. of Semesters</th>
+                                        <th>Setting</th>
+                                    </tr>
+                                    {% for department in departments%}
+                                    <tr>
+                                        <td>{{department['id']}}</td>
+                                        <td>{{department['name']}}</td>
+                                        <td>
+                                            {% set status = "Active" if department['status'] else "Disabled" %}
+                                            {% set setting = "pd-setting" if department['status'] else "ds-setting" %}
+
+                                            <button class="{{setting}}">{{status}}</button>
+                                        </td>
+                                        <td>{{department['hod_name']}}</td>
+                                        <td>{{department['hod_email']}}</td>
+                                        <td>{{department['hod_mobile']}}</td>
+                                        <td>{{department['no_of_semester']}}</td>
+                                        <td>
+                                            <button data-toggle="tooltip" title="Edit" class="pd-setting-ed"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></button>
+                                            <button data-toggle="tooltip" title="Trash" class="pd-setting-ed"><i class="fa fa-trash-o" aria-hidden="true"></i></button>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </table>
+                            </div>
+                            <div class="custom-pagination">
+                                <nav aria-label="Page navigation example">
+                                    <ul class="pagination">
+                                        <li class="page-item"><a class="page-link" href="#">Previous</a></li>
+                                        <li class="page-item"><a class="page-link" href="#">1</a></li>
+                                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                        <li class="page-item"><a class="page-link" href="#">Next</a></li>
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endblock %}

@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>Dashboard V.3 | Kiaalap - Kiaalap Admin Template</title>
+    <title>Dashboard - Attendee</title>
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- favicon
@@ -53,12 +53,27 @@
 		============================================ -->
     <link rel="stylesheet" href="{{url_for('static',filename='css/calendar/fullcalendar.min.css')}}">
     <link rel="stylesheet" href="{{url_for('static',filename='css/calendar/fullcalendar.print.min.css')}}">
+    <!-- select2 CSS
+		============================================ -->
+    <link rel="stylesheet" href="{{url_for('static',filename='css/select2/select2.min.css')}}">
+    <!-- chosen CSS
+		============================================ -->
+        <link rel="stylesheet" href="{{url_for('static',filename='css/chosen/bootstrap-chosen.css')}}">
+    <!-- notifications CSS
+		============================================ -->
+        <link rel="stylesheet" href="{{url_for('static',filename='css/notifications/Lobibox.min.css')}}">
+        <link rel="stylesheet" href="{{url_for('static',filename='css/notifications/notifications.css')}}">
     <!-- style CSS
 		============================================ -->
     <link rel="stylesheet" href="{{url_for('static',filename='style.css')}}">
     <!-- responsive CSS
 		============================================ -->
     <link rel="stylesheet" href="{{url_for('static',filename='css/responsive.css')}}">
+    <!-- font awsome CSS
+		============================================ -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css"
+    integrity="sha512-SzlrxWUlpfuzQ+pcUCosxcglQRNAq/DZjVsC0lE40xsADsfeQoEypE+enwcOiGjk/bSuGGKHEyjSoQ1zVisanQ=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
     <!-- modernizr JS
 		============================================ -->
     <script src="{{url_for('static',filename='js/vendor/modernizr-2.8.3.min.js')}}"></script>
@@ -72,49 +87,61 @@
     <div class="left-sidebar-pro">
         <nav id="sidebar" class="">
             <div class="sidebar-header">
-                <a href="/dashboard"><img class="main-logo" src="{{url_for('static',filename='images/logo/logo.png')}}" alt="" /></a>
-                <strong><a href="/dashboard"><img src="{{url_for('static',filename='images/logo/logosn.png')}}" alt="" /></a></strong>
+                <a href="/"><img class="main-logo" src="{{url_for('static',filename='images/logo/logo.png')}}"
+                        alt="" /></a>
+                <strong><a href="/"><img src="{{url_for('static',filename='images/logo/logosn.png')}}"
+                            alt="" /></a></strong>
             </div>
             <div class="left-custom-menu-adp-wrap comment-scrollbar">
                 <nav class="sidebar-nav left-sidebar-menu-pro">
                     <ul class="metismenu" id="menu1">
                         <li>
-                            <a title="Landing Page" href="events.html" aria-expanded="false"><span class="educate-icon educate-event icon-wrap sub-icon-mg" aria-hidden="true"></span> <span class="mini-click-non">Event</span></a>
+                            <a title="Landing Page" href="/events" aria-expanded="false"><span
+                                    class="educate-icon educate-event icon-wrap sub-icon-mg" aria-hidden="true"></span>
+                                <span class="mini-click-non">Event</span></a>
                         </li>
                         <li>
-                            <a class="has-arrow" href="all-professors.html" aria-expanded="false"><span class="educate-icon educate-professor icon-wrap"></span> <span class="mini-click-non">Professors</span></a>
+                            <a class="has-arrow" href="all-professors.html" aria-expanded="false"><span
+                                    class="educate-icon educate-professor icon-wrap"></span> <span
+                                    class="mini-click-non">Professors</span></a>
                             <ul class="submenu-angle" aria-expanded="false">
-                                <li><a title="All Professors" href="all-professors.html"><span class="mini-sub-pro">All Professors</span></a></li>
-                                <li><a title="Add Professor" href="add-professor.html"><span class="mini-sub-pro">Add Professor</span></a></li>
+                                <li><a title="All Professors" href="/all-professors"><span class="mini-sub-pro">All
+                                            Professors</span></a></li>
+                                <li><a title="Add Professor" href="/add-professor"><span class="mini-sub-pro">Add
+                                            Professor</span></a></li>
                             </ul>
                         </li>
                         <li>
-                            <a class="has-arrow" href="all-students.html" aria-expanded="false"><span class="educate-icon educate-student icon-wrap"></span> <span class="mini-click-non">Students</span></a>
+                            <a class="has-arrow" href="all-students.html" aria-expanded="false"><span
+                                    class="educate-icon educate-student icon-wrap"></span> <span
+                                    class="mini-click-non">Students</span></a>
                             <ul class="submenu-angle" aria-expanded="false">
-                                <li><a title="All Students" href="all-students.html"><span class="mini-sub-pro">All Students</span></a></li>
-                                <li><a title="Add Students" href="add-student.html"><span class="mini-sub-pro">Add Student</span></a></li>
+                                <li><a title="All Students" href="/all-students"><span class="mini-sub-pro">All
+                                            Students</span></a></li>
+                                <li><a title="Add Students" href="/add-student"><span class="mini-sub-pro">Add
+                                            Student</span></a></li>
                             </ul>
                         </li>
                         <li>
-                            <a class="has-arrow" href="all-courses.html" aria-expanded="false"><span class="educate-icon educate-course icon-wrap"></span> <span class="mini-click-non">Courses</span></a>
+                            <a class="has-arrow" href="all-courses.html" aria-expanded="false"><span
+                                    class="educate-icon educate-course icon-wrap"></span> <span
+                                    class="mini-click-non">Courses</span></a>
                             <ul class="submenu-angle" aria-expanded="false">
-                                <li><a title="All Courses" href="all-courses.html"><span class="mini-sub-pro">All Courses</span></a></li>
-                                <li><a title="Add Courses" href="add-course.html"><span class="mini-sub-pro">Add Course</span></a></li>
+                                <li><a title="All Courses" href="/all-courses"><span class="mini-sub-pro">All
+                                            Courses</span></a></li>
+                                <li><a title="Add Courses" href="/add-course"><span class="mini-sub-pro">Add
+                                            Course</span></a></li>
                             </ul>
                         </li>
                         <li>
-                            <a class="has-arrow" href="all-courses.html" aria-expanded="false"><span class="educate-icon educate-department icon-wrap"></span> <span class="mini-click-non">Departments</span></a>
+                            <a class="has-arrow" href="all-courses.html" aria-expanded="false"><span
+                                    class="educate-icon educate-department icon-wrap"></span> <span
+                                    class="mini-click-non">Departments</span></a>
                             <ul class="submenu-angle" aria-expanded="false">
-                                <li><a title="Departments List" href="departments.html"><span class="mini-sub-pro">Departments List</span></a></li>
-                                <li><a title="Add Departments" href="add-department.html"><span class="mini-sub-pro">Add Departments</span></a></li>
-                            </ul>
-                        </li>
-                        <li>
-                            <a class="has-arrow" href="mailbox.html" aria-expanded="false"><span class="educate-icon educate-message icon-wrap"></span> <span class="mini-click-non">Mailbox</span></a>
-                            <ul class="submenu-angle" aria-expanded="false">
-                                <li><a title="Inbox" href="mailbox.html"><span class="mini-sub-pro">Inbox</span></a></li>
-                                <li><a title="View Mail" href="mailbox-view.html"><span class="mini-sub-pro">View Mail</span></a></li>
-                                <li><a title="Compose Mail" href="mailbox-compose.html"><span class="mini-sub-pro">Compose Mail</span></a></li>
+                                <li><a title="Departments List" href="/all-departments"><span
+                                            class="mini-sub-pro">Departments List</span></a></li>
+                                <li><a title="Add Departments" href="/add-department"><span class="mini-sub-pro">Add
+                                            Departments</span></a></li>
                             </ul>
                         </li>
                     </ul>
@@ -123,81 +150,290 @@
         </nav>
     </div>
     <!-- End Left menu area -->
-    {% block body %}{% endblock %}
-    
-    <div class="footer-copyright-area">
+    <!-- Start Welcome area -->
+    <div class="all-content-wrapper">
         <div class="container-fluid">
             <div class="row">
-                <div class="col-lg-12">
-                    <div class="footer-copy-right">
-                        <p>Copyright © <a href="/">attendee.com</a> 2018. All rights reserved.</p>
+                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                    <div class="logo-pro">
+                        <a href="/"><img class="main-logo" src="{{url_for('static',filename='images/logo/logo.png')}}"
+                                alt="" /></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="header-advance-area">
+            <div class="header-top-area">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                            <div class="header-top-wraper">
+                                <div class="row">
+                                    <div class="col-lg-1 col-md-0 col-sm-1 col-xs-12">
+                                        <div class="menu-switcher-pro">
+                                            <button type="button" id="sidebarCollapse"
+                                                class="btn bar-button-pro header-drl-controller-btn btn-info navbar-btn">
+                                                <i class="educate-icon educate-nav"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-7 col-sm-6 col-xs-12">
+                                        <div class="header-top-menu tabl-d-n">
+                                            <ul class="nav navbar-nav mai-top-nav">
+                                                <li class="nav-item"><a href="/" class="nav-link">Home</a>
+                                                </li>
+                                                <li class="nav-item dropdown res-dis-nn">
+                                                    <a href="#" data-toggle="dropdown" role="button"
+                                                        aria-expanded="false" class="nav-link dropdown-toggle">Project
+                                                        <span class="angle-down-topmenu"><i
+                                                                class="fa fa-angle-down"></i></span></a>
+                                                    <div role="menu" class="dropdown-menu animated zoomIn">
+                                                        <a href="#" class="dropdown-item">Documentation</a>
+                                                        <a href="#" class="dropdown-item">Expert Backend</a>
+                                                        <a href="#" class="dropdown-item">Expert FrontEnd</a>
+                                                        <a href="#" class="dropdown-item">Contact Support</a>
+                                                    </div>
+                                                </li>
+                                                <li class="nav-item"><a href="#" class="nav-link">Support</a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-5 col-md-5 col-sm-12 col-xs-12">
+                                        <div class="header-right-info">
+                                            <ul class="nav navbar-nav mai-top-nav header-right-menu">
+                                                <li class="nav-item"><a href="#" data-toggle="dropdown" role="button"
+                                                        aria-expanded="false" class="nav-link dropdown-toggle"><i
+                                                            class="educate-icon educate-bell"
+                                                            aria-hidden="true"></i><span
+                                                            class="indicator-nt"></span></a>
+                                                    <div role="menu"
+                                                        class="notification-author dropdown-menu animated zoomIn">
+                                                        <div class="notification-single-top">
+                                                            <h1>Notifications</h1>
+                                                        </div>
+                                                        <ul class="notification-menu">
+                                                            {% for notification in notifications|reverse %}
+                                                            <li>
+                                                                <a href="#">
+                                                                <div class="notification-icon">
+                                                                {% set status = notification['status'] %}
+                                                                {% if status == 'success' %}
+                                                                {% set icon = 'educate-checked'%}
+                                                                {% elif status == 'warning' %}
+                                                                {% set icon = 'educate-info' %}
+                                                                {% elif status == 'error' %}
+                                                                {% set icon = 'educate-warning' %}
+                                                                {% endif %}
+                                                                <i class="educate-icon {{icon}} edu-checked-pro admin-check-pro" aria-hidden="true"></i>
+                                                                </div>
+                                                                <div class="notification-content">
+                                                                 <span class="notification-date">{{notification['date']}}</span>
+                                                                <h2>{{notification['name']}}</h2>
+                                                                <p>{{notification['message']}}</p>
+                                                                </div>
+                                                                </a>
+                                                                </li>
+                                                            {% endfor %}
+                                                        </ul>
+                                                        <div class="notification-view">
+                                                            <a href="/all-notifications">View All Notification</a>
+                                                        </div>
+                                                    </div>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a href="#" data-toggle="dropdown" role="button"
+                                                        aria-expanded="false" class="nav-link dropdown-toggle">
+                                                        <span class="admin-name">Prof.Anderson</span>
+                                                        <i class="fa fa-angle-down edu-icon edu-down-arrow"></i>
+                                                    </a>
+                                                    <ul role="menu"
+                                                        class="dropdown-header-top author-log dropdown-menu animated zoomIn">
+                                                        <li><a href="#"><span
+                                                                    class="edu-icon edu-home-admin author-log-ic"></span>My
+                                                                Account</a>
+                                                        </li>
+                                                        <li><a href="#"><span
+                                                                    class="edu-icon edu-user-rounded author-log-ic"></span>My
+                                                                Profile</a>
+                                                        </li>
+                                                        <li><a href="/logout"><span
+                                                                    class="edu-icon edu-locked author-log-ic"></span>Log
+                                                                Out</a>
+                                                        </li>
+                                                    </ul>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Mobile Menu start -->
+            <div class="mobile-menu-area">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                            <div class="mobile-menu">
+                                <nav id="dropdown">
+                                    <ul class="mobile-menu-nav">
+                                        <li><a href="/events">Event</a></li>
+                                        <li><a data-toggle="collapse" data-target="#demoevent" href="#">Professors <span
+                                                    class="admin-project-icon edu-icon edu-down-arrow"></span></a>
+                                            <ul id="demoevent" class="collapse dropdown-header-top">
+                                                <li><a href="/all-professors">All Professors</a>
+                                                </li>
+                                                <li><a href="/add-professor">Add Professor</a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                        <li><a data-toggle="collapse" data-target="#demopro" href="#">Students <span
+                                                    class="admin-project-icon edu-icon edu-down-arrow"></span></a>
+                                            <ul id="demopro" class="collapse dropdown-header-top">
+                                                <li><a href="/all-students">All Students</a>
+                                                </li>
+                                                <li><a href="/add-student">Add Student</a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                        <li><a data-toggle="collapse" data-target="#democrou" href="#">Courses <span
+                                                    class="admin-project-icon edu-icon edu-down-arrow"></span></a>
+                                            <ul id="democrou" class="collapse dropdown-header-top">
+                                                <li><a href="/all-courses">All Courses</a>
+                                                </li>
+                                                <li><a href="/add-course">Add Course</a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                        <li><a data-toggle="collapse" data-target="#demodepart" href="#">Departments
+                                                <span class="admin-project-icon edu-icon edu-down-arrow"></span></a>
+                                            <ul id="demodepart" class="collapse dropdown-header-top">
+                                                <li><a href="/all-departments">Departments List</a>
+                                                </li>
+                                                <li><a href="/add-department">Add Departments</a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Mobile Menu end -->
+        </div>
+        {% block body %}{% endblock %}
+
+        <div class="footer-copyright-area">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="footer-copy-right">
+                            <p>Copyright © <a href="/">attendee.com</a> 2018. All rights reserved.</p>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
-<!-- jquery
+    <!-- jquery
     ============================================ -->
-<script src="{{url_for('static',filename='js/vendor/jquery-1.12.4.min.js')}}"></script>
-<!-- bootstrap JS
+    <script src="{{url_for('static',filename='js/vendor/jquery-1.12.4.min.js')}}"></script>
+    <!-- bootstrap JS
     ============================================ -->
-<script src="{{url_for('static',filename='js/bootstrap.min.js')}}"></script>
-<!-- wow JS
+    <script src="{{url_for('static',filename='js/bootstrap.min.js')}}"></script>
+    <!-- wow JS
     ============================================ -->
-<script src="{{url_for('static',filename='js/wow.min.js')}}"></script>
-<!-- price-slider JS
+    <script src="{{url_for('static',filename='js/wow.min.js')}}"></script>
+    <!-- price-slider JS
     ============================================ -->
-<script src="{{url_for('static',filename='js/jquery-price-slider.js')}}"></script>
-<!-- meanmenu JS
+    <script src="{{url_for('static',filename='js/jquery-price-slider.js')}}"></script>
+    <!-- meanmenu JS
     ============================================ -->
-<script src="{{url_for('static',filename='js/jquery.meanmenu.js')}}"></script>
-<!-- owl.carousel JS
+    <script src="{{url_for('static',filename='js/jquery.meanmenu.js')}}"></script>
+    <!-- owl.carousel JS
     ============================================ -->
-<script src="{{url_for('static',filename='js/owl.carousel.min.js')}}"></script>
-<!-- sticky JS
+    <script src="{{url_for('static',filename='js/owl.carousel.min.js')}}"></script>
+    <!-- sticky JS
     ============================================ -->
-<script src="{{url_for('static',filename='js/jquery.sticky.js')}}"></script>
-<!-- scrollUp JS
+    <script src="{{url_for('static',filename='js/jquery.sticky.js')}}"></script>
+    <!-- scrollUp JS
     ============================================ -->
-<script src="{{url_for('static',filename='js/jquery.scrollUp.min.js')}}"></script>
-<!-- counterup JS
+    <script src="{{url_for('static',filename='js/jquery.scrollUp.min.js')}}"></script>
+    <!-- counterup JS
     ============================================ -->
-<script src="{{url_for('static',filename='js/counterup/jquery.counterup.min.js')}}"></script>
-<script src="{{url_for('static',filename='js/counterup/waypoints.min.js')}}"></script>
-<script src="{{url_for('static',filename='js/counterup/counterup-active.js')}}"></script>
-<!-- mCustomScrollbar JS
+    <script src="{{url_for('static',filename='js/counterup/jquery.counterup.min.js')}}"></script>
+    <script src="{{url_for('static',filename='js/counterup/waypoints.min.js')}}"></script>
+    <script src="{{url_for('static',filename='js/counterup/counterup-active.js')}}"></script>
+    <!-- mCustomScrollbar JS
     ============================================ -->
-<script src="{{url_for('static',filename='js/scrollbar/jquery.mCustomScrollbar.concat.min.js')}}"></script>
-<script src="{{url_for('static',filename='js/scrollbar/mCustomScrollbar-active.js')}}"></script>
-<!-- metisMenu JS
+    <script src="{{url_for('static',filename='js/scrollbar/jquery.mCustomScrollbar.concat.min.js')}}"></script>
+    <script src="{{url_for('static',filename='js/scrollbar/mCustomScrollbar-active.js')}}"></script>
+    <!-- metisMenu JS
     ============================================ -->
-<script src="{{url_for('static',filename='js/metisMenu/metisMenu.min.js')}}"></script>
-<script src="{{url_for('static',filename='js/metisMenu/metisMenu-active.js')}}"></script>
-<!-- morrisjs JS
+    <script src="{{url_for('static',filename='js/metisMenu/metisMenu.min.js')}}"></script>
+    <script src="{{url_for('static',filename='js/metisMenu/metisMenu-active.js')}}"></script>
+    
+    <!-- chosen JS
     ============================================ -->
-<script src="{{url_for('static',filename='js/morrisjs/raphael-min.js')}}"></script>
-<script src="{{url_for('static',filename='js/morrisjs/morris.js')}}"></script>
-<script src="{{url_for('static',filename='js/morrisjs/home3-active.js')}}"></script>
-<!-- morrisjs JS
+    <script src="{{url_for('static',filename='js/chosen/chosen.jquery.js')}}"></script>
+    <script src="{{url_for('static',filename='js/chosen/chosen-active.js')}}"></script>
+    <!-- select2 JS
+        ============================================ -->
+    <script src="{{url_for('static',filename='js/select2/select2.full.min.js')}}"></script>
+    <script src="{{url_for('static',filename='js/select2/select2-active.js')}}"></script>
+    <!-- calendar JS
     ============================================ -->
-<script src="{{url_for('static',filename='js/sparkline/jquery.sparkline.min.js')}}"></script>
-<script src="{{url_for('static',filename='js/sparkline/jquery.charts-sparkline.js')}}"></script>
-<script src="{{url_for('static',filename='js/sparkline/sparkline-active.js')}}"></script>
-<!-- calendar JS
+    <script src="{{url_for('static',filename='js/calendar/moment.min.js')}}"></script>
+    <script src="{{url_for('static',filename='js/calendar/fullcalendar.min.js')}}"></script>
+    <script src="{{url_for('static',filename='js/calendar/fullcalendar-active.js')}}"></script>
+    <!-- maskedinput JS
+		============================================ -->
+    <script src="{{url_for('static',filename='js/jquery.maskedinput.min.js')}}"></script>
+    <script src="{{url_for('static',filename='js/masking-active.js')}}"></script>
+    <!-- datepicker JS
+            ============================================ -->
+    <script src="{{url_for('static',filename='js/datepicker/jquery-ui.min.js')}}"></script>
+    <script src="{{url_for('static',filename='js/datepicker/datepicker-active.js')}}"></script>
+    <!-- form validate JS
+            ============================================ -->
+    <script src="{{url_for('static',filename='js/form-validation/jquery.form.min.js')}}"></script>
+    <script src="{{url_for('static',filename='js/form-validation/jquery.validate.min.js')}}"></script>
+    <script src="{{url_for('static',filename='js/form-validation/form-active.js')}}"></script>
+    <!-- notification JS
+		============================================ -->
+        <script src="{{url_for('static',filename='js/notifications/Lobibox.js')}}"></script>
+        <script src="{{url_for('static',filename='js/notifications/notification-active.js')}}"></script>
+    <!-- dropzone JS
+            ============================================ -->
+    <script src="{{url_for('static',filename='js/dropzone/dropzone.js')}}"></script>
+    <!-- tab JS
+            ============================================ -->
+    <script src="{{url_for('static',filename='js/tab.js')}}"></script>
+    <!-- plugins JS
     ============================================ -->
-<script src="{{url_for('static',filename='js/calendar/moment.min.js')}}"></script>
-<script src="{{url_for('static',filename='js/calendar/fullcalendar.min.js')}}"></script>
-<script src="{{url_for('static',filename='js/calendar/fullcalendar-active.js')}}"></script>
-<!-- plugins JS
+    <script src="{{url_for('static',filename='js/plugins.js')}}"></script>
+    <!-- main JS
     ============================================ -->
-<script src="{{url_for('static',filename='js/plugins.js')}}"></script>
-<!-- main JS
-    ============================================ -->
-<script src="{{url_for('static',filename='js/main.js')}}"></script>
-<!-- tawk chat JS
-    ============================================ -->
-<script src="{{url_for('static',filename='js/tawk-chat.js')}}"></script>
+    <script src="{{url_for('static',filename='js/main.js')}}"></script>
+    
+    {% if notification %}
+    
+<script>
+    (function ($) {
+        "use strict";
+        $(window).on('load', function () {
+            Lobibox.notify('{{notification['status']}}', {
+                msg: "{{notification['msg']}}"
+            });
+        });
+    })(jQuery); 
+</script>
+{% endif %}
 </body>
 
 </html>

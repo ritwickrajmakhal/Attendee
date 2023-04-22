@@ -6,7 +6,7 @@
             "user": "root",
             "password": "",
             "database": "attendee"
-        },
+        }, 
         "productionServer": {
             "host": "ENTER_YOUR_HOST_NAME",
             "user": "ENTER_YOUR_USERNAME",
@@ -16,13 +16,23 @@
         "admins":[
             {
                 "user":"ENTER_YOUR_USERNAME",
+                "mobile": "Enter_YOUR_MOBILE",
                 "password":"ENTER_YOUR_PASSWORD"
             }
         ],
-        "fb_url": "https://www.facebook.com/attendee",
-        "yt_url": "https://www.youtube.com/attendee",
-        "insta_url": "https://www.instagram.com/attendee",
-        "tw_url": "https://www.twiter.com/attendee",
+        "APIs":[
+            {
+                "site": "https://unsplash.com/",
+                "Access_Key":"6Fj8m0sIjSJqt7Cn6m3eB1wcR95ufjNqRlAcLxdtGCE",
+                "description": "Used to get images from the third party api"
+            },
+            {
+                "site": "https://twilio.com",
+                "account_sid": "ACa8d209236a5ed2e28564fd34601bf77a",
+                "auth_token": "f9a23165bba5f29bb8d681a2fea3f293",
+                "description": "Used to send SMS using the third party api"
+            }
+        ],
         "github_url": "https://github.com/ritwickrajmakhal/Automated-attendence-system",
         "image_upload_location" : "static\\images",
         "face_encodings_folder_location": "face_encodings"
