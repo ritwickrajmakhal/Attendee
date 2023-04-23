@@ -140,7 +140,7 @@
                             <ul class="submenu-angle" aria-expanded="false">
                                 <li><a title="Departments List" href="/all-departments"><span
                                             class="mini-sub-pro">Departments List</span></a></li>
-                                <li><a title="Add Departments" href="/add-department"><span class="mini-sub-pro">Add
+                                <li><a title="Add Departments" href="/add-department/0"><span class="mini-sub-pro">Add
                                             Departments</span></a></li>
                             </ul>
                         </li>
@@ -244,19 +244,11 @@
                                                 <li class="nav-item">
                                                     <a href="#" data-toggle="dropdown" role="button"
                                                         aria-expanded="false" class="nav-link dropdown-toggle">
-                                                        <span class="admin-name">Prof.Anderson</span>
+                                                        <span class="admin-name">{{params['admins'][0]['user']}}</span>
                                                         <i class="fa fa-angle-down edu-icon edu-down-arrow"></i>
                                                     </a>
                                                     <ul role="menu"
                                                         class="dropdown-header-top author-log dropdown-menu animated zoomIn">
-                                                        <li><a href="#"><span
-                                                                    class="edu-icon edu-home-admin author-log-ic"></span>My
-                                                                Account</a>
-                                                        </li>
-                                                        <li><a href="#"><span
-                                                                    class="edu-icon edu-user-rounded author-log-ic"></span>My
-                                                                Profile</a>
-                                                        </li>
                                                         <li><a href="/logout"><span
                                                                     class="edu-icon edu-locked author-log-ic"></span>Log
                                                                 Out</a>
@@ -313,7 +305,7 @@
                                             <ul id="demodepart" class="collapse dropdown-header-top">
                                                 <li><a href="/all-departments">Departments List</a>
                                                 </li>
-                                                <li><a href="/add-department">Add Departments</a>
+                                                <li><a href="/add-department/0">Add Departments</a>
                                                 </li>
                                             </ul>
                                         </li>

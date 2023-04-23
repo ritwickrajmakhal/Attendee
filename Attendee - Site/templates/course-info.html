@@ -1,0 +1,163 @@
+{% extends "dashboardLayout.html" %}
+{% block body %}
+<div class="breadcome-area">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                <div class="breadcome-list">
+                    <div class="row">
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                            <ul class="breadcome-menu">
+                                <li><a href="/">Home</a> <span class="bread-slash">/</span>
+                                </li>
+                                <li><a href="/all-courses">All Courses</a> <span class="bread-slash">/</span>
+                                </li>
+                                <li><a href="/add-courses/{{course['id']}}">{{course['name']}}</a> <span
+                                        class="bread-slash"></span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="single-pro-review-area mt-t-30 mg-b-15">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                <div class="profile-info-inner">
+                    <div
+                        style="height:300px;width:inherit;background-image: url({{course['image_file']}});background-size: 100% 100%;">
+                    </div>
+                    <div class="profile-details-hr">
+                        <div class="row">
+                            <div class="col-lg-6 col-md-12 col-sm-12 col-xs-6">
+                                <div class="address-hr">
+                                    <p><b>Name</b><br />{{course['name']}}</p>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-md-12 col-sm-12 col-xs-6">
+                                <div class="address-hr tb-sm-res-d-n dps-tb-ntn">
+                                    <p><b>Department</b><br />{{course['department']}}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-6 col-md-12 col-sm-12 col-xs-6">
+                                <div class="address-hr">
+                                    <p><b>Semester</b><br /> {{course['semester']}}</p>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-md-12 col-sm-12 col-xs-6">
+                                <div class="address-hr tb-sm-res-d-n dps-tb-ntn">
+                                    <p><b>Year</b><br /> {{course['year']}}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-6">
+                                <div class="address-hr">
+                                    <p><b>Professors</b><br />
+                                        {% set i = 0 %}
+                                        {% for professor_name in course['professor_names'] %}
+                                        <a
+                                            href="/professor-profile/{{course['professor_ids'][i]}}">{{professor_name}}</a>
+                                        {% set i = i + 1 %}
+                                        {% endfor %}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
+                <div class="product-payment-inner-st res-mg-t-30 analysis-progrebar-ctn">
+                    <ul id="myTabedu1" class="tab-review-design">
+                        <li class="active"><a href="#description">Activity</a></li>
+                        <li><a href="#reviews">Courses</a></li>
+                    </ul>
+                    <div id="myTabContent" class="tab-content custom-product-edit st-prf-pro">
+                        <div class="product-tab-list tab-pane fade active in" id="description">
+                            <div class="row">
+                                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                    <div class="review-content-section">
+                                        <table class="table table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th scope="col">Date-Time</th>
+                                                    <th scope="col">Course</th>
+                                                    <th scope="col">Duration</th>
+                                                    <th scope="col">Attendance Status</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <th scope="row">1</th>
+                                                    <td>Mark</td>
+                                                    <td>Otto</td>
+                                                    <td>@mdo</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="product-tab-list tab-pane fade" id="reviews">
+                            <div class="row">
+                                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                    <div class="review-content-section">
+                                        {% if courses|length == 0 %}
+                                        No course created
+                                        {% endif %}
+                                        {% for course in courses %}
+                                        <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12 mg-b-30"
+                                            style="cursor:pointer;">
+                                            <div class="courses-inner res-mg-b-30">
+                                                <div class="courses-title">
+                                                    {% set image_url = course['image_file'] %}
+                                                    <div
+                                                        style="height:200px;width:inherit;background-image: url({{image_url}});background-size: cover;">
+                                                    </div>
+                                                    <h2>{{course['name']}}</h2>
+                                                </div>
+                                                <div class="courses-alaltic">
+                                                    <span class="cr-ic-r"><span class="course-icon"><i
+                                                                class="fa-solid fa-building-user"></i></span>
+                                                        {{course['department']}}</span>
+                                                </div>
+                                                <div class="course-des">
+                                                    <p><span><i class="fa-solid fa-hourglass-start"></i></span>
+                                                        <b>Semester:</b> {{course['semester'][-1:]}}</p>
+                                                    <p><span><i class="fa-solid fa-chalkboard-user"></i></span>
+                                                        <b>Professors:</b>
+                                                        {% for professor_name in course['professor_names'] %}
+                                                        {{professor_name}}
+                                                        {% endfor %}
+                                                    </p>
+                                                    <p><span><i class="fa fa-clock"></i></span> <b>Year:</b>
+                                                        {{course['year']}}</p>
+                                                </div>
+                                                <div class="product-buttons">
+                                                    <button type="button" class="button-default cart-btn">Read
+                                                        More</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

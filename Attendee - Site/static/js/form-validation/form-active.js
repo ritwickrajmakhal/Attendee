@@ -392,6 +392,8 @@
 				},
 				phone:
 				{
+					minlength: 10,
+					maxlength: 10,
 					required: true
 				},
 				noofstudent:

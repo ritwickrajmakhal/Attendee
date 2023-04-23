@@ -1,13 +1,42 @@
 {% extends "dashboardLayout.html" %}
 {% block body %}
+<div class="breadcome-area">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                <div class="breadcome-list">
+                    <div class="row">
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                            <div class="breadcome-heading">
+                                <form role="search" class="sr-input-func">
+                                    <input type="text" placeholder="Search..." class="search-int form-control">
+                                    <a href="#"><i class="fa fa-search"></i></a>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                            <ul class="breadcome-menu">
+                                <li><a href="/">Home</a> <span class="bread-slash">/</span>
+                                </li>
+                                <li><a href="/all-courses">All Courses</a> <span class="bread-slash"></span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
         <div class="courses-area">
             <div class="container-fluid">
                 <div class="row">
                     {% for course in courses %}
-                    <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
+                    <div onclick="window.location.href = '/course-info/{{course['id']}}'" class="col-lg-3 col-md-6 col-sm-6 col-xs-12 mg-b-30" style="cursor:pointer;">
                         <div class="courses-inner res-mg-b-30">
                             <div class="courses-title">
-                                <a href="#"><img src="{{course['image_file']}}" alt=""></a>
+                                {% set image_url = course['image_file'] %}
+                                <div style="height:200px;width:inherit;background-image: url({{image_url}});background-size: 100% 100%;"></div>
                                 <h2>{{course['name']}}</h2>
                             </div>
                             <div class="courses-alaltic">
@@ -16,14 +45,11 @@
                             <div class="course-des">
                                 <p><span><i class="fa-solid fa-hourglass-start"></i></span> <b>Semester:</b> {{course['semester'][-1:]}}</p>
                                 <p><span><i class="fa-solid fa-chalkboard-user"></i></span> <b>Professors:</b> 
-                                    {% for professor in course['professors'] %}
+                                    {% for professor in course['professor_names'] %}
                                     {{professor}}
                                     {% endfor %}
                                 </p>
                                 <p><span><i class="fa fa-clock"></i></span> <b>Year:</b> {{course['year']}}</p>
-                            </div>
-                            <div class="product-buttons">
-                                <button type="button" class="button-default cart-btn">Read More</button>
                             </div>
                         </div>
                     </div>

@@ -1,5 +1,27 @@
 {% extends "dashboardLayout.html" %}
 {% block body %}
+<div class="breadcome-area">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                <div class="breadcome-list">
+                    <div class="row">
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                            <ul class="breadcome-menu">
+                                <li><a href="/">Home</a> <span class="bread-slash">/</span>
+                                </li>
+                                <li><a href="/add-department">Add Departments</a> <span class="bread-slash"></span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 <!-- Single pro tab review Start-->
 <div class="notification-area mt-t-30 mg-b-15">
     <div class="container-fluid">
@@ -14,30 +36,30 @@
                             <div class="row">
                                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                     <div class="review-content-section">
-                                        <form id="add-department" action="/add-department" class="add-department"
-                                            method="post">
+                                        <form id="add-department" action="/add-department/{{department['id'] if department else 0}}" class="add-department"
+                                            method="POST">
                                             <div class="row">
                                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                                     <div class="form-group">
-                                                        <input name="name" type="text" class="form-control"
+                                                        <input name="name" type="text" value="{{department['name']}}" class="form-control"
                                                             placeholder="Name">
                                                     </div>
                                                     <div class="form-group">
-                                                        <input name="noofsemester" type="number" class="form-control"
+                                                        <input name="noofsemester" type="number" value="{{department['no_of_semester']}}" class="form-control"
                                                             placeholder="No. of Semesters">
                                                     </div>
                                                     <div class="form-group">
-                                                        <input name="headofdepartment" type="text" class="form-control"
+                                                        <input name="headofdepartment" type="text" value="{{department['hod_name']}}" class="form-control"
                                                             placeholder="Head of Department">
                                                     </div>
                                                 </div>
                                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                                     <div class="form-group">
-                                                        <input name="phone" type="number" class="form-control"
+                                                        <input name="phone" type="number" value="{{department['hod_mobile']}}" class="form-control"
                                                             placeholder="Phone">
                                                     </div>
                                                     <div class="form-group">
-                                                        <input name="email" type="email" class="form-control"
+                                                        <input name="email" type="email" value="{{department['hod_email']}}" class="form-control"
                                                             placeholder="Email">
                                                     </div>
                                                 </div>
@@ -45,8 +67,11 @@
                                             <div class="row">
                                                 <div class="col-lg-12">
                                                     <div class="payment-adress">
-                                                        <button type="submit"
-                                                            class="btn btn-primary waves-effect waves-light">Submit</button>
+                                                        {% if department %}
+                                                        <button type="submit" class="btn btn-primary waves-effect waves-light">Upadte</button>
+                                                        {% else %}
+                                                        <button type="submit" class="btn btn-primary waves-effect waves-light">Submit</button>
+                                                        {% endif %}
                                                     </div>
                                                 </div>
                                             </div>
